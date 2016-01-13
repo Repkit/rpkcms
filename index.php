@@ -1,1 +1,1 @@
-here will be an awesome cms :) 
+here will be soon an awesome cms :) 
