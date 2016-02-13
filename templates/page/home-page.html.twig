@@ -1,9 +1,9 @@
 {% extends '@layout/default.html.twig' %}
 
-{% block title %}Home{% endblock %}
+{% block title %}{{title}}{% endblock %}
 
 {% block content %}
-Ana are mere de test :)
+{{content}}
 <hr>
-<small>Pagina <strong>{{page}}</strong> in limba {{language}}</small>
+<small>Pagina <strong>{{title}}</strong> in limba {{language}}</small>
 {% endblock %}

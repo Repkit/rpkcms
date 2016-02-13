@@ -8,9 +8,8 @@ use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Router;
 use Zend\Expressive\Template;
-use Zend\Expressive\Plates\PlatesRenderer;
-use Zend\Expressive\Twig\TwigRenderer;
-use Zend\Expressive\ZendView\ZendViewRenderer;
+use Page\Storage\StorageInterface;
+use Page\Storage\StorageException;
 
 class CacheAction
 {
@@ -18,66 +17,81 @@ class CacheAction
 
     private $template;
     
-    private $pdo;
+    private $storage;
 
-    public function __construct(\PDO $Pdo, Router\RouterInterface $Router
+    public function __construct(StorageInterface $Storage, Router\RouterInterface $Router
         , Template\TemplateRendererInterface $Template = null)
     {
-        $this->pdo      = $Pdo;
+        $this->storage  = $Storage;
         $this->router   = $Router;
         $this->template = $Template;
     }
 
     public function __invoke(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
     {
-        $url  = $Request->getUri();
-        $path = $url->getPath();
-        $query = $url->getQuery;
-        // var_dump($url);exit();
+        try{
         
-        //detecting language
-        // $lang = $Request->getAttribute('lang', 'en');
-        
-        //detecting requested page
-        //TODO: TIME-check if better get from request first
-        if(preg_match('#\.(html|xml)$#', $path, $matches)){
-            $page = substr($path,1,-strlen(reset($matches)));
-        }else{
-            $page = $Request->getAttribute('page', 'home');
+            $url  = $Request->getUri();
+            $path = $url->getPath();
+            $query = $url->getQuery;
+            // var_dump($url);exit();
+            
+            //detecting language
+            // $lang = $Request->getAttribute('lang', 'en');
+            
+            //detecting requested page
+            //TODO: TIME-check if better get from request first
+            if(preg_match('#\.(html|xml)$#', $path, $matches)){
+                $page = substr($path,1,-strlen(reset($matches)));
+            }else{
+                $page = $Request->getAttribute('page', 'home');
+                $path .= '.html';
+            }
+            // var_dump($page);exit();
+    
+            $data['page'] = $page;
+            $data['language'] = date('Y-m-d H:i:s');
+            
+            
+            // $file = getcwd().'/data/cache/html/'.$lang.'_'.$page.'.html';
+            $cachepath = getcwd().'/public/data/cache/html/';
+            $filename = $page.'.html';
+            $file = $cachepath.$filename;
+            if(!file_exists($file)){
+                $pagedb = $this->storage->fetchBySlug($page);
+                if(false == $pagedb){
+                    throw new StorageException('Page not found');
+                }
+                $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$data);
+                // var_dump($pagedb['content']);exit();
+                // $content = file_get_contents(getcwd().'/data/cache/html/en_test.html');
+                $content = $this->template->render('page::home-page', $pagedb);
+                file_put_contents($file, $content);
+            }
+            
+            // return $this->redirect($path.'.html', $url, $Response);
+            // return $this->redirect("/data/cache/html/$filename", $url, $Response);
+            return $this->redirect($path, $url, $Response);
+            
+        }catch(\Exception $e){
+            return $Next($Request,$Response);
         }
-       
-        $data['page'] = $page;
-        $data['language'] = date('Y-m-d H:i:s');
-        
-        
-        // $file = getcwd().'/data/cache/html/'.$lang.'_'.$page.'.html';
-        $cachepath = getcwd().'/public/data/cache/html/';
-        $filename = $page.'.html';
-        $file = $cachepath.$filename;
-        if(!file_exists($file)){
-            $content = $this->template->render('page::home-page', $data);
-            // $data = file_get_contents(getcwd().'/data/cache/html/en_test.html');
-            file_put_contents($file, $content);
-        }
-        
-        // return $this->redirect($path.'.html', $url, $Response);
-        // return $this->redirect("/data/cache/html/$filename", $url, $Response);
-        return $this->redirect($path, $url, $Response);
     }
     
-    private function redirect($path, $url, $res, $query = [])
+    private function redirect($Path, $Url, $Res, $Status = 202, $Query = [])
     {
         
-        $url = $url->withPath($path);
+        $url = $Url->withPath($Path);
 
-        if (count($query)) {
-            $url = $url->withQuery(http_build_query($query));
+        if (count($Query)) {
+            $url = $url->withQuery(http_build_query($Query));
         }
         
 
-        return $res
+        return $Res
             // ->withStatus(301)
-            ->withStatus(202)
+            ->withStatus($Status)
             ->withHeader('Location', (string) $url);
     }
+    
 }

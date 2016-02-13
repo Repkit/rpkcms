@@ -55,6 +55,8 @@ class PdoFactory
         /*$charset     = !empty($config["charset"]) ? $config['charset'] : 'utf8';
         $pdo->exec("set names $charset");*/
         
-        return $pdo;
+        // return $pdo;
+        
+        return new PdoAdapter($pdo);
     }
 }
