@@ -1,4 +1,14 @@
 RewriteEngine On
+
+#@link:http://stackoverflow.com/questions/12031374/mod-rewrite-if-the-file-exists-in-another-directory-serve-that-one-instead
+# RewriteCond %{REQUEST_FILENAME} !-f
+# RewriteCond %{REQUEST_URI} ^/([^/]+)/(.+)$
+# RewriteCond %{DOCUMENT_ROOT}/%1/data/cache/html/%2 -f
+# RewriteRule ^(.*)$ /%1/data/cache/html/%2 [L,R]
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{DOCUMENT_ROOT}/data/cache/html/%{REQUEST_URI} -f
+RewriteRule ^(.+)$ data/cache/html/$1
+
 # The following rule tells Apache that if the requested filename
 # exists, simply serve it.
 RewriteCond %{REQUEST_FILENAME} -s [OR]

@@ -1,0 +1,27 @@
+#Options +FollowSymlinks
+Options Indexes FollowSymLinks
+Require all granted
+
+<IfModule mod_alias.c>
+	#Alias /public-assets /uploads/files 
+</IfModule>
+
+RewriteEngine On
+
+#RewriteCond %{REQUEST_URI} ^/uploads/files/(.*)$ 
+#RewriteRule ^(.*)$ public-assets/$1 [L] 
+
+RewriteCond %{REQUEST_URI} ^/public-assets/(.*)$ 
+RewriteRule ^(.*)$ uploads/files/$1 [L] 
+
+RewriteCond %{REQUEST_FILENAME} -s [OR]
+RewriteCond %{REQUEST_FILENAME} -l [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^.*$ - [NC,L]
+
+RewriteCond %{REQUEST_URI}::$1 ^(/.+)(.+)::\2$
+RewriteRule ^(.*) - [E=BASE:%1]
+RewriteRule ^(.*)$ %{ENV:BASE}index.php [NC,L]
+#SetEnv "APP_ENV" "production"
+
+SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
