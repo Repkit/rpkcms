@@ -1,0 +1,11 @@
+_old/
+
+# Composer files
+composer.phar
+vendor/
+
+# Local configs
+config/autoload/*.local.php
+
+#cache files
+data/cache/
