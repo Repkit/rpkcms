@@ -11,8 +11,11 @@ class PdoFactory
         $config = $Services->get('config');
         $config = $config['page']['storage'];
         
+        //getting attributes if any
+        $attributes = !empty($config["attributes"]) ? $config["attributes"] : array();
+        
         //try getting connection string first
-        $constr = !empty($config["connection_string"]) ? $config["connection_string"]  : null;
+        $constr = !empty($config["connection_string"]) ? $config["connection_string"] : null;
         if(!$constr){
             
             //collecting config data
@@ -44,8 +47,7 @@ class PdoFactory
             
         }
         
-        //getting and setting attributes if any
-        $attributes = !empty($config["attributes"]) ? $config['attributes'] : array();
+        //setting attributes if any
         foreach($attributes as $attribute => $value){
             $pdo->setAttribute($attribute, $value);
         }

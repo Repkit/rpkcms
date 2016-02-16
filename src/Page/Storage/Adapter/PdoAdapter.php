@@ -2,7 +2,9 @@
 
 namespace Page\Storage\Adapter;
 
+use Zend\Paginator\Paginator;
 use Page\Storage\StorageInterface;
+use Page\Storage\Paginator\PdoPaginator;
 
 
 class PdoAdapter implements StorageInterface
@@ -16,7 +18,7 @@ class PdoAdapter implements StorageInterface
     
     public function fetch($Id)
     {
-        $select = $this->pdo->prepare('SELECT * from posts WHERE id = :id');
+        $select = $this->pdo->prepare('SELECT * from pages WHERE id = :id');
         if (! $select->execute([':id' => $Id])) {
             return false;
         }
@@ -36,8 +38,8 @@ class PdoAdapter implements StorageInterface
 
     public function fetchAll()
     {
-        $select = 'SELECT * FROM posts WHERE draft = 0 AND public = 1 ORDER BY created DESC LIMIT :offset, :limit';
-        $count  = 'SELECT COUNT(id) FROM posts WHERE draft = 0 AND public = 1';
+        $select = 'SELECT * FROM pages WHERE state = 1 ORDER BY creationDate DESC LIMIT :offset, :limit';
+        $count  = 'SELECT COUNT(id) FROM pages WHERE state = 1';
         return $this->preparePaginator($select, $count);
     }
 
@@ -85,7 +87,7 @@ class PdoAdapter implements StorageInterface
         }, []);
 
         return new Cloud($options);
-    }
+    }*/
 
     private function preparePaginator($select, $count, array $params = [])
     {
@@ -96,5 +98,5 @@ class PdoAdapter implements StorageInterface
             $count,
             $params
         ));
-    }*/
+    }
 }

@@ -1,0 +1,13 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<ul id="navigation">
+{% for page in pages %}
+    <li><a target="_blank" href="/{{ page.slug }}.html">{{ page.title }}</a></li>
+{% endfor %}
+</ul>
+<hr>
+<small>Pagina <strong>{{title}}</strong> in limba {{language}}</small>
+{% endblock %}

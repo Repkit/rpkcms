@@ -28,8 +28,8 @@ class ModuleConfig
                     // 'allowed_methods' => ['GET'],
                 ],
                 'admin-page' => [
-                    'name' => 'admin-page',
-                    'path' => '/admin/page[/{action:add|edit}[/{id}]]',
+                    'name' => 'api.page',
+                    'path' => '/api/page[/{action:add|edit}[/{id}]]',
                     'middleware' => Action\PageAction::class,
                     'allowed_methods' => ['GET'],
                 ],
@@ -53,6 +53,7 @@ class ModuleConfig
                     ],
                     'attributes'  => [
                         \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                        \PDO::ATTR_EMULATE_PREPARES => false,
                         \PDO::MYSQL_ATTR_INIT_COMMAND => 
                             "SET NAMES utf8; SET time_zone = 'Europe/Bucharest'"
                     ],
