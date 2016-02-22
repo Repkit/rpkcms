@@ -1,0 +1,16 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+<a target="_blank" href="{{ url('admin.page-template', {'action': 'add'}) }}">Add new page template</a>
+<ul id="navigation">
+{% for page_template in page_templates %}
+    <li>
+        <a href="#">{{ page_template.name }}</a>
+        <a target="_blank" href="{{ url('admin.page-template', {'action': 'edit','id' : page_template.id}) }}">edit</a>
+    </li>
+{% endfor %}
+</ul>
+<hr>
+{% endblock %}

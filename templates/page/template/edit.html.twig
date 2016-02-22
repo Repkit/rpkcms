@@ -1,0 +1,59 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+
+{% for message in messages %}
+    <div class="alert alert-danger" role="alert">{{message}}</div>
+{% endfor %}
+
+<form method="post" action="{{ url('admin.page-template', {'action': 'edit'}) }}" onsubmit="processForm()">
+    
+    <input type="hidden" name="id" id="template_id" value="{{page_template.id}}" required>  
+    <div class="form-group">
+        <label for="template_name">Name</label>
+        <input type="text" name="name" class="form-control" id="template_name" value="{{page_template.name}}" placeholder="name" required>
+    </div>
+  
+    <div class="form-group">
+        <label for="template_path">Path</label>
+        <input type="text" name="path" class="form-control" id="template_path" value="{{page_template.path}}" placeholder="path" required>
+    </div>
+    
+    <div class="form-group">
+        <label for="template_content">Content</label>
+        <div class="form-control" id="template_content" style="height: 210px;">{{page_template.content}}</div>
+        <textarea id="template_content_hidden" class="form-control hide" name="content" rows="3"></textarea>
+    </div>
+    
+    <div class="form-group">
+        <label for="template_state">State</label>
+        <select id="template_state" class="form-control" name="state">
+          {% if page_template.state %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("template_content");
+    editor.setTheme("ace/theme/solarized_dark");
+    editor.getSession().setMode("ace/mode/twig");
+</script>
+
+<script>
+function processForm() {
+    document.getElementById("template_content_hidden").value = editor.getSession().getValue();
+}
+</script>
+
+{% endblock %}

@@ -16,7 +16,11 @@ class ModuleConfig
                     Action\CacheAction::class =>
                         Action\CacheFactory::class,
                     Action\PageAction::class =>
-                        Action\PageFactory::class,    
+                        Action\PageFactory::class,
+                    Action\CategoryAction::class =>
+                        Action\CategoryFactory::class,
+                    Action\TemplateAction::class =>
+                        Action\TemplateFactory::class,
                 ],
             ],
             'routes' => [
@@ -28,15 +32,28 @@ class ModuleConfig
                     // 'allowed_methods' => ['GET'],
                 ],
                 'admin-page' => [
-                    'name' => 'api.page',
-                    'path' => '/api/page[/{action:add|edit}[/{id}]]',
+                    'name' => 'admin.page',
+                    'path' => '/admin/page[/{action:add|edit}[/{id}]]',
                     'middleware' => Action\PageAction::class,
-                    'allowed_methods' => ['GET'],
+                    'allowed_methods' => ['GET','POST'],
+                ],
+                'admin-page-category' => [
+                    'name' => 'admin.page-category',
+                    'path' => '/admin/page-category[/{action:add|edit}[/{id}]]',
+                    'middleware' => Action\CategoryAction::class,
+                    'allowed_methods' => ['GET','POST'],
+                ],
+                'admin-page-template' => [
+                    'name' => 'admin.page-template',
+                    'path' => '/admin/page-template[/{action:add|edit}[/{id}]]',
+                    'middleware' => Action\TemplateAction::class,
+                    'allowed_methods' => ['GET','POST'],
                 ],
             ],
             'templates' => [
                 'paths'     => [
-                    'page'    => ['templates/page'],
+                    // 'page'    => ['templates/page'],
+                    'templates'    => ['templates'],
                 ],
             ],
             'page' => [

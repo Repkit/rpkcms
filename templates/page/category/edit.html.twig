@@ -1,0 +1,40 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}{{title}}{% endblock %}
+
+{% block content %}
+
+{% for message in messages %}
+    <div class="alert alert-danger" role="alert">{{message}}</div>
+{% endfor %}
+
+<form method="post" action="{{ url('admin.page-category', {'action': 'edit'}) }}">
+    
+    <input type="hidden" name="id" id="category_id" value="{{page_category.id}}" required>  
+    <div class="form-group">
+        <label for="category_name">Name</label>
+        <input type="text" name="name" class="form-control" id="category_name" value="{{page_category.name}}" placeholder="name" required>
+    </div>
+  
+    <div class="form-group">
+        <label for="category_slug">Slug</label>
+        <input type="text" name="slug" class="form-control" id="category_slug" value="{{page_category.slug}}" placeholder="slug" required pattern="^[a-z0-9-]+$">
+    </div>
+  
+    <div class="form-group">
+        <label for="category_state">State</label>
+        <select id="category_state" class="form-control" name="state">
+          {% if page_category.state %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

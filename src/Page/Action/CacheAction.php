@@ -40,7 +40,7 @@ class CacheAction
             // $lang = $Request->getAttribute('lang', 'en');
             
             //detecting requested page
-            //TODO: TIME-check if better get from request first
+            //TODO: [PERFORMANCE] -check if better get from request first
             if(preg_match('#\.(html|xml)$#', $path, $matches)){
                 $page = substr($path,1,-strlen(reset($matches)));
             }else{
@@ -58,14 +58,16 @@ class CacheAction
             $filename = $page.'.html';
             $file = $cachepath.$filename;
             if(!file_exists($file)){
-                $pagedb = $this->storage->fetchBySlug($page);
+                // $pagedb = $this->storage->fetch('pages', $page, 'slug');
+                $pagedb = $this->storage->pageBySlug($page);
+                // var_dump($pagedb);exit();
                 if(false == $pagedb){
                     throw new StorageException('Page not found');
                 }
                 $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$data);
                 // var_dump($pagedb['content']);exit();
                 // $content = file_get_contents(getcwd().'/data/cache/html/en_test.html');
-                $content = $this->template->render('page::home-page', $pagedb);
+                $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
                 file_put_contents($file, $content);
             }
             
@@ -74,6 +76,7 @@ class CacheAction
             return $this->redirect($path, $url, $Response);
             
         }catch(\Exception $e){
+            // var_dump($e->getMessage());exit();
             return $Next($Request,$Response);
         }
     }

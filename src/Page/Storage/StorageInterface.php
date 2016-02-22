@@ -4,9 +4,7 @@ namespace Page\Storage;
 
 interface StorageInterface
 {
-    public function fetch($Id);
+    public function fetch($Name, $Value);
     
-    public function fetchBySlug($Slug);
-    
-    public function fetchAll();
+    public function fetchAll($Name);
 }

@@ -3,7 +3,8 @@
 return [
     'dependencies' => [
         'invokables' => [
-            Zend\Expressive\Router\RouterInterface::class => Zend\Expressive\Router\FastRouteRouter::class,
+            // Zend\Expressive\Router\RouterInterface::class => Zend\Expressive\Router\FastRouteRouter::class,
+            Zend\Expressive\Router\RouterInterface::class => Page\FastRouteRouter::class,
             App\Action\PingAction::class => App\Action\PingAction::class,
         ],
         'factories' => [

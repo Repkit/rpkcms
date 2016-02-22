@@ -3,9 +3,13 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
+<a target="_blank" href="{{ url('admin.page', {'action': 'add'}) }}">Add new page</a>
 <ul id="navigation">
 {% for page in pages %}
-    <li><a target="_blank" href="/{{ page.slug }}.html">{{ page.title }}</a></li>
+    <li>
+        <a target="_blank" href="/{{ page.slug }}.html">{{ page.title }}</a>
+        <a target="_blank" href="{{ url('admin.page', {'action': 'edit','id' : page.id}) }}">edit</a>
+    </li>
 {% endfor %}
 </ul>
 <hr>

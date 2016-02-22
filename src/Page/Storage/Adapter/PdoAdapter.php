@@ -16,78 +16,157 @@ class PdoAdapter implements StorageInterface
         $this->pdo = $Pdo;
     }
     
-    public function fetch($Id)
+    public function fetch($Name, $Value, $Key = 'id')
+    {
+        $select = $this->pdo->prepare("SELECT * from $Name WHERE $Key = :$Key");
+        if (! $select->execute([":$Key" => $Value])) {
+            return false;
+        }
+        
+        return $select->fetch(\PDO::FETCH_ASSOC);
+    }
+    /*public function fetch($Id)
     {
         $select = $this->pdo->prepare('SELECT * from pages WHERE id = :id');
         if (! $select->execute([':id' => $Id])) {
             return false;
         }
-
         return $select->fetch();
-    }
+    }*/
     
-    public function fetchBySlug($Slug)
+    public function fetchAll($Name, array $Where = ['state' => 1], $OrderBy = 'creationDate DESC')
     {
-        $select = $this->pdo->prepare('SELECT * from pages WHERE slug = :slug');
-        if (! $select->execute([':slug' => $Slug])) {
-            return false;
-        }
-
-        return $select->fetch();
+        // TODO: [SECURITY] - prepare statement for where
+        $where = implode(' AND ', array_map(
+           function ($k, $v) { return "$k = $v"; },
+           array_keys($Where),
+           array_values($Where)
+        ));
+        $select = "SELECT * FROM $Name WHERE $where ORDER BY $OrderBy LIMIT :offset, :limit";
+        $count  = "SELECT COUNT(id) FROM $Name WHERE $where";
+        return $this->preparePaginator($select, $count);
     }
-
-    public function fetchAll()
+    /*public function fetchAll()
     {
         $select = 'SELECT * FROM pages WHERE state = 1 ORDER BY creationDate DESC LIMIT :offset, :limit';
         $count  = 'SELECT COUNT(id) FROM pages WHERE state = 1';
         return $this->preparePaginator($select, $count);
-    }
-
-    public function fetchAllByAuthor($Author)
-    {
-        $select = 'SELECT * FROM posts WHERE draft = 0 AND public = 1 AND author = :author ORDER BY created DESC LIMIT :offset, :limit';
-        $count  = 'SELECT COUNT(id) FROM posts WHERE draft = 0 AND public = 1 AND author = :author';
-        return $this->preparePaginator($select, $count, [':author' => $Author]);
-    }
-
-    public function fetchAllByTag($Tag)
-    {
-        $select = 'SELECT * FROM posts WHERE draft = 0 AND public = 1 AND tags LIKE :tag ORDER BY created DESC LIMIT :offset, :limit';
-        $count  = 'SELECT COUNT(id) FROM posts WHERE draft = 0 AND public = 1 AND tags LIKE :tag';
-        return $this->preparePaginator($select, $count, [':tag' => sprintf('%%|%s|%%', $Tag)]);
-    }
-
-    /*public function fetchTagCloud($urlTemplate = '/blog/tag/%s', array $options = [])
-    {
-        $options['fontSizeUnit'] = isset($options['fontSizeUnit']) ? $options['fontSizeUnit'] : '%';
-        $options['minFontSize'] = isset($options['minFontSize']) ? $options['minFontSize'] : 80;
-        $options['maxFontSize'] = isset($options['maxFontSize']) ? $options['maxFontSize'] : 300;
-
-        $select = $this->pdo->prepare('SELECT tags FROM posts WHERE tags IS NOT NULL AND tags != ""');
-        $select->execute();
-
-        $tagsByRow = array_map(function ($value) {
-            return explode('|', trim($value, '|'));
-        }, $select->fetchAll(PDO::FETCH_COLUMN));
-
-        $options['tags'] = array_reduce($tagsByRow, function ($carry, $item) use ($urlTemplate) {
-            foreach ($item as $tag) {
-                if (! isset($carry[$tag])) {
-                    $carry[$tag] = [
-                        'title' => $tag,
-                        'weight' => 0,
-                        'params' => [
-                            'url' => sprintf($urlTemplate, str_replace(' ', '+', $tag))
-                        ],
-                    ];
-                }
-                $carry[$tag]['weight'] += 1;
-            }
-            return $carry;
-        }, []);
-
-        return new Cloud($options);
     }*/
+    
+    //insert query
+	/*
+	* syntax storage->insert(table name, insert data array, duplicated field checking array)
+	* $inserted = $db->insert('users', array('email'=>'c@yahoo.com', 'nickname'=> 'Mr. C', 'password' => '159159'), array('email'));
+	*/
+    public function insert($Name, array $Data = [], array $Unique = []) 
+    {
+        $params = [];
+		$values = [];
+		
+		//populating field array
+		foreach($Data as $field => $value){
+			$params[] = ':'. $field;
+			$values[':'.$field] = htmlentities($value);
+		}
+		
+		//generating field string
+		$params = implode(',',$params);
+		$fields = implode(',', array_keys($Data));
+		
+		// checking wheather same value exists or not
+		/*$duplicate = false;
+		if( count($Unique) > 0 ){
+			$condition = [];
+			foreach($Unique as $fieldName){
+				$condition[] = $fieldName." = '".$Data[$fieldName]."' ";
+			}
+			$sql = "SELECT $Unique[0] FROM $Name WHERE ".implode('AND ',$condition);
+			$res = $this->pdo->query($sql);
+			
+			//checking duplicate
+			if( $res->rowCount() > 0 ) {
+			    $duplicate = true;
+			}
+		}*/
+		
+		//processing insertsion while there is no duplicated value
+		//if(!$duplicate) {
+			$sql = 'INSERT INTO '.$Name.' ('.$fields.') VALUES('.$params.')';
+			
+			//query
+			$insert = $this->pdo->prepare($sql);
+			$insert->execute($values);
+			
+			// affected row
+			//$affectedRow = $insert->rowCount();
+			
+			// last inseretd id
+			//$lastInsertedId = $this->pdo->lastInsertId();
+		//}
+		
+		// returning insert log
+		return $this->pdo->lastInsertId();
+ 		//return array('affectedRow' => $affectedRow, 'insertedId' => $lastInsertedId, 'duplicate' => $duplicate);
+    }
+    
+    public function update($Name, array $Data, array $Where)
+    {
+        $params = [];
+		$values = [];
+		
+		//populating field array
+		foreach($Data as $field => $value){
+			$params[] = $field.' = :'.$field;
+			$values[':'.$field] = htmlentities($value);
+		}
+		
+		//generating field string
+		$params = implode(',',$params);
+		$fields = implode(',', array_keys($Data));
+		
+		//generating where condition
+		// TODO: [SECURITY] - prepare statement for where
+        $where = implode(' AND ', array_map(
+           function ($k, $v) { return "$k = $v"; },
+           array_keys($Where),
+           array_values($Where)
+        ));
+        
+    	$sql = 'UPDATE ' .$Name. ' SET ' .$params. ' WHERE ' . $where;
+		
+		//query
+		$update = $this->pdo->prepare($sql);
+		$update->execute($values);
+		
+		return $update->rowCount();
+    }
+    
+    public function pageBySlug($page)
+    {
+        $q = '  SELECT pages.*, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
+                FROM pages
+                INNER JOIN page_templates 
+                    ON pages.templateId = page_templates.id
+                WHERE 
+                    pages.state = 1
+                    AND pages.slug = :slug';
+        $select = $this->query($q, [':slug' => $page]);
+        if($select){
+            $select = $select->fetch(\PDO::FETCH_ASSOC);
+        }
+        
+        return $select;
+    }
+    
+    private function query($Query, array $Params = [])
+    {
+        $query = $this->pdo->prepare($Query);
+        if (! $query->execute($Params)) {
+            return false;
+        }
+        
+        return $query;
+    }
 
     private function preparePaginator($select, $count, array $params = [])
     {

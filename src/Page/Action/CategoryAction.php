@@ -11,7 +11,7 @@ use Zend\Expressive\Template;
 use Page\Storage\StorageInterface;
 use Page\Storage\StorageException;
 
-class PageAction
+class CategoryAction
 {
     private $router;
 
@@ -36,24 +36,25 @@ class PageAction
         $path = $Request->getOriginalRequest()->getUri()->getPath();
         $pagdata = $this->getPaginationDataFromRequest($Request);
         
-        $entities = $this->storage->fetchAll('pages');
+        $entities = $this->storage->fetchAll('page_categories');
         $cnt = count($entities);
         
         // If the requested page is later than the last, redirect to the last
         /*if ($cnt && $pagdata['page'] > $cnt) {
             return $Response
                 ->withStatus(302)
-                ->withHeader('Location', sprintf('%s?page=%d', $path, $cnt));
+                ->withHeader('Location', sprintf('%s?page-categories=%d', $path, $cnt));
         }*/
         
         $entities->setItemCountPerPage($pagdata['size']);
         $entities->setCurrentPageNumber($pagdata['page']);
 
         // $data['pages'] = iterator_to_array($pages->getItemsByPage($page));
-        $data['pages'] = iterator_to_array($entities->getCurrentItems());
+        $data['page_categories'] = iterator_to_array($entities->getCurrentItems());
         
         // return new JsonResponse($data);
-        return new HtmlResponse($this->template->render('templates/page::list', $data));
+        return new HtmlResponse($this->template->render('templates/page/category::list', $data));
+        // return new HtmlResponse($this->template->render('page::category-list', $data));
         
     }
 
@@ -63,16 +64,16 @@ class PageAction
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             // var_dump($post);exit();
-            $id = $this->storage->insert('pages',$post);
+            $id = $this->storage->insert('page_categories',$post);
             if($id){
-                $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
+                $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
                 return $Response
                     ->withStatus(302)
                     ->withHeader('Location', (string) $url);
             }
         }
         
-        return new HtmlResponse($this->template->render('templates/page::add', $data));
+        return new HtmlResponse($this->template->render('templates/page/category::add', $data));
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -83,17 +84,17 @@ class PageAction
         if ($id && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             // var_dump($post);exit();
-            $this->storage->update('pages',$post, ['id' => $id]);
-            $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
+            $this->storage->update('page_categories',$post, ['id' => $id]);
+            $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
         }
         
-        $entity = $this->storage->fetch('pages',$id);
+        $entity = $this->storage->fetch('page_categories',$id);
         // var_dump($entity);exit();
-        $data['page'] = $entity;
-        return new HtmlResponse($this->template->render('templates/page::edit', $data));
+        $data['page_category'] = $entity;
+        return new HtmlResponse($this->template->render('templates/page/category::edit', $data));
     }
     
 }

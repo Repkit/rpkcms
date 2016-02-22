@@ -21,7 +21,8 @@ return [
     ],
 
     'twig' => [
-        'cache_dir'      => 'data/cache/twig',
+        // 'cache_dir'      => 'data/cache/twig',
+        'cache_dir'      => false,
         'assets_url'     => '/',
         'assets_version' => null,
         'extensions'     => [

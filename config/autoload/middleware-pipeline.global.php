@@ -39,7 +39,7 @@ return [
                 // - bootstrapping
                 // - pre-conditions
                 // - modifications to outgoing responses
-                // Helper\ServerUrlMiddleware::class,
+                Helper\ServerUrlMiddleware::class,
             ],
             'priority' => 10000,
         ],
@@ -47,7 +47,7 @@ return [
         'routing' => [
             'middleware' => [
                 ApplicationFactory::ROUTING_MIDDLEWARE,
-                // Helper\UrlHelperMiddleware::class,
+                Helper\UrlHelperMiddleware::class,
                 // Add more middleware here that needs to introspect the routing
                 // results; this might include:
                 // - route-based authentication
