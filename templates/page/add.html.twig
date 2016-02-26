@@ -8,27 +8,116 @@
     <div class="alert alert-danger" role="alert">{{message}}</div>
 {% endfor %}
 
-<form method="post" action="{{ url('admin.page', {'action': 'add'}) }}">
-      
+<form method="post" action="{{ url('admin.page', {'action': 'add'}) }}" onsubmit="processForm()">
+    
+    {#slug#}
     <div class="form-group">
-        <label for="category_name">Name</label>
-        <input type="text" name="name" class="form-control" id="category_name" placeholder="name" required>
+        <label for="page_slug">Slug</label>
+        <input id="page_slug" type="text" name="slug" class="form-control" placeholder="slug" required  pattern="^[a-z0-9-]+$">
     </div>
-  
+    
+    {#title#}
     <div class="form-group">
-        <label for="category_slug">Slug</label>
-        <input type="text" name="slug" class="form-control" id="category_slug" placeholder="slug" required pattern="^[a-z0-9-]+$">
+        <label for="page_tite">Title</label>
+        <input id="page_tite" type="text" name="title" class="form-control" placeholder="title" required>
     </div>
-  
+    
+    {#description#}
     <div class="form-group">
-        <label for="category_state">State</label>
-        <select id="category_state" class="form-control" name="state">
-          <option value="1">Active</option>
+        <label for="page_description">Description</label>
+        <textarea id="page_description" class="form-control" name="description" rows="3"></textarea>
+    </div>
+    
+    {#content#}
+    <div class="form-group">
+        <label for="page_content">Content</label>
+        <div id="page_content" class="form-control" style="height: 210px;"></div>
+        <textarea id="page_content_hidden" class="hide" name="content" rows="3"></textarea>
+    </div>
+    
+    {#tempalte#}
+    <div class="form-group">
+        <label for="page_templates">Template</label>
+        <select id="page_templates" class="form-control" name="templateId" required>
+            <option value="">Choose</option>
+            {% for idx,template in page_templates %}
+                <option value="{{ template.id }}">{{ template.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {#parent#}
+    <div class="form-group">
+        <label for="page_parents">Parent</label>
+        <select id="page_parents" class="form-control" name="parentId">
+            <option value="">None</option>
+            {% for idx, parent in page_parents %}
+                <option value="{{ parent.id }}">{{ parent.title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {#category#}
+    <div class="form-group">
+        <label for="page_categories">Category</label>
+        <select id="page_categories" class="form-control" name="categoryId">
+            <option value="">None</option>
+            {% for idx, category in page_categories %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {#access#}
+    <div class="form-group">
+        <label for="user_roles">Access</label>
+        <select id="user_roles" class="form-control" name="roleId">
+            {% for idx, role in user_roles %}
+                <option value="{{ role.id }}">{{ role.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {#priority#}
+    <div class="form-group">
+        <label for="page_priority">Priority</label>
+        <input id="page_priority" type="number" name="priority" class="form-control" placeholder="priority" required pattern="^[0-9]+$">
+    </div>
+    
+    {#status#}
+    <div class="form-group">
+        <label for="page_status">Status</label>
+        <select id="page_status" class="form-control" name="statusId">
+            <option value="1">None</option>
+            {% for idx, status in page_statuses %}
+                <option value="{{ status.id }}">{{ status.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    
+    {#state#}
+    <div class="form-group">
+        <label for="page_state">State</label>
+        <select id="page_state" class="form-control" name="state">
+          <option value="1" selected>Active</option>
           <option value="0">Inactive</option>
         </select>
     </div>
   
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("page_content");
+    editor.setTheme("ace/theme/solarized_dark");
+    editor.getSession().setMode("ace/mode/twig");
+</script>
+
+<script>
+function processForm() {
+    document.getElementById("page_content_hidden").value = editor.getSession().getValue();
+}
+</script>
 
 {% endblock %}

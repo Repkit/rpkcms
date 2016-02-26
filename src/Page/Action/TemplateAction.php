@@ -67,14 +67,23 @@ class TemplateAction
             $content = $post['content'];
             unset($post['content']);
             $post['creationDate'] = date('Y-m-d H:i:s');
+            
             $id = $this->storage->insert('page_templates',$post);
-            if($id){
-                file_put_contents(getcwd().'/templates'.$post['path'].$post['name'].'.html.twig', $content);
+            if(!empty($id)){
+                $path = getcwd().'/templates'.$post['path'];
+                if (!is_dir($path)) {
+                  // dir doesn't exist, make it
+                  mkdir($path, 0775, true);
+                }
+                file_put_contents($path.$post['name'].'.html.twig', $content);
                 $url = $this->router->generateUri('admin.page-template', ['action' => 'edit','id' => $id]);
                 return $Response
                     ->withStatus(302)
                     ->withHeader('Location', (string) $url);
             }
+            
+            $data = $post;
+            $data['content'] = $content;
         }
         
         return new HtmlResponse($this->template->render('templates/page/template::add', $data));
@@ -85,14 +94,39 @@ class TemplateAction
         $data = [];
         $id = $Request->getAttribute('id', false);
         
-        if ($id && 'POST' === $Request->getMethod()) {
+        if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             // var_dump($post);exit();
             // TODO: [SECURITY] - validate content
             $content = $post['content'];
             unset($post['content']);
-            $this->storage->update('page_templates',$post, ['id' => $id]);
-            file_put_contents(getcwd().'/templates'.$post['path'].$post['name'].'.html.twig', $content);
+            
+            
+            $path = getcwd().'/templates'.$post['path'];
+            if (!is_dir($path)) {
+              // dir doesn't exist, make it
+              mkdir($path, 0775, true);
+            }
+            $file = $path.$post['name'].'.html.twig';
+            if(file_exists($file)){
+                //backup file per day
+                $bakfile = $file.'.'.date('Ymd').'.bak';
+                if (!copy($file, $bakfile)) {
+                    throw new \Exception('failed to backup template: '. $file);
+                }
+            }
+            file_put_contents($file, $content);
+            try{
+                $this->storage->update('page_templates',$post, ['id' => $id]);
+            }catch(\Exception $e){
+                if (!copy($bakfile, $file)) {
+                    throw new \Exception('failed to update template and to restore content of the old one from: '. $bakfile);
+                }else{
+                    throw new \Exception('failed to update template the old content was restored!');
+                }
+            }
+            
+            
             // TODO: delete cache for pages that use this template
             $url = $this->router->generateUri('admin.page-template', ['action' => 'edit','id' => $id]);
             return $Response

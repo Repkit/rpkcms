@@ -3,12 +3,12 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-<a target="_blank" href="{{ url('admin.page-category', {'action': 'add'}) }}">Add new page category</a>
+<a target="_self" href="{{ url('admin.page-category', {'action': 'add'}) }}">Add new page category</a>
 <ul id="navigation">
 {% for page_category in page_categories %}
     <li>
         <a href="#">{{ page_category.name }}</a>
-        <a target="_blank" href="{{ url('admin.page-category', {'action': 'edit','id' : page_category.id}) }}">edit</a>
+        <a target="_self" href="{{ url('admin.page-category', {'action': 'edit','id' : page_category.id}) }}">edit</a>
     </li>
 {% endfor %}
 </ul>

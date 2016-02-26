@@ -44,8 +44,12 @@ class CacheAction
             if(preg_match('#\.(html|xml)$#', $path, $matches)){
                 $page = substr($path,1,-strlen(reset($matches)));
             }else{
-                $page = $Request->getAttribute('page', 'home');
-                $path .= '.html';
+                $page = $Request->getAttribute('page', 'index');
+                if('/' == $path){
+                    $path = '/index.html';
+                }else{
+                    $path .= '.html';
+                }
             }
             // var_dump($page);exit();
     
@@ -57,6 +61,7 @@ class CacheAction
             $cachepath = getcwd().'/public/data/cache/html/';
             $filename = $page.'.html';
             $file = $cachepath.$filename;
+            // var_dump($file);exit();
             if(!file_exists($file)){
                 // $pagedb = $this->storage->fetch('pages', $page, 'slug');
                 $pagedb = $this->storage->pageBySlug($page);
@@ -70,6 +75,8 @@ class CacheAction
                 $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
                 file_put_contents($file, $content);
             }
+            
+            // var_dump($path);exit();
             
             // return $this->redirect($path.'.html', $url, $Response);
             // return $this->redirect("/data/cache/html/$filename", $url, $Response);

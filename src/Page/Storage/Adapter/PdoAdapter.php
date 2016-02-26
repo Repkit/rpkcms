@@ -37,13 +37,19 @@ class PdoAdapter implements StorageInterface
     public function fetchAll($Name, array $Where = ['state' => 1], $OrderBy = 'creationDate DESC')
     {
         // TODO: [SECURITY] - prepare statement for where
-        $where = implode(' AND ', array_map(
-           function ($k, $v) { return "$k = $v"; },
-           array_keys($Where),
-           array_values($Where)
-        ));
-        $select = "SELECT * FROM $Name WHERE $where ORDER BY $OrderBy LIMIT :offset, :limit";
-        $count  = "SELECT COUNT(id) FROM $Name WHERE $where";
+        if(!empty($Where)){
+            $where = implode(' AND ', array_map(
+               function ($k, $v) { return "$k = $v"; },
+               array_keys($Where),
+               array_values($Where)
+            ));
+            $where = 'WHERE '. $where;
+        }else{
+            $where = '';
+        }
+        
+        $select = "SELECT * FROM $Name $where ORDER BY $OrderBy LIMIT :offset, :limit";
+        $count  = "SELECT COUNT(id) FROM $Name $where";
         return $this->preparePaginator($select, $count);
     }
     /*public function fetchAll()
@@ -66,7 +72,8 @@ class PdoAdapter implements StorageInterface
 		//populating field array
 		foreach($Data as $field => $value){
 			$params[] = ':'. $field;
-			$values[':'.$field] = htmlentities($value);
+			// $values[':'.$field] = htmlentities($value);
+			$values[':'.$field] = $value;
 		}
 		
 		//generating field string
@@ -117,7 +124,8 @@ class PdoAdapter implements StorageInterface
 		//populating field array
 		foreach($Data as $field => $value){
 			$params[] = $field.' = :'.$field;
-			$values[':'.$field] = htmlentities($value);
+			// $values[':'.$field] = htmlentities($value);
+			$values[':'.$field] = $value;
 		}
 		
 		//generating field string

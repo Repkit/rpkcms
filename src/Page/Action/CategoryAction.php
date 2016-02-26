@@ -65,7 +65,7 @@ class CategoryAction
             $post = $Request->getParsedBody();
             // var_dump($post);exit();
             $id = $this->storage->insert('page_categories',$post);
-            if($id){
+            if(!empty($id)){
                 $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
                 return $Response
                     ->withStatus(302)
@@ -81,7 +81,7 @@ class CategoryAction
         $data = [];
         $id = $Request->getAttribute('id', false);
         
-        if ($id && 'POST' === $Request->getMethod()) {
+        if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             // var_dump($post);exit();
             $this->storage->update('page_categories',$post, ['id' => $id]);

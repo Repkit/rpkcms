@@ -3,8 +3,10 @@
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
-{{content}}
+{% autoescape %}
+    {{ content|raw }}
+{% endautoescape %}
 <hr>
-<small>Pagina <strong>{{title}}</strong> in limba {{language}}</small>
+<small>Pagina <strong>{{title}}</strong> cache generate at {{language}}</small>
 this is cms
 {% endblock %}
