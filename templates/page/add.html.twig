@@ -41,7 +41,7 @@
         <select id="page_templates" class="form-control" name="templateId" required>
             <option value="">Choose</option>
             {% for idx,template in page_templates %}
-                <option value="{{ template.id }}">{{ template.name }}</option>
+                <option value="{{ template.id }}">{{ template.name }} - [{{ template.path }}]</option>
             {% endfor %}
         </select>
     </div>

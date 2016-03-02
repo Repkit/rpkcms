@@ -1,5 +1,11 @@
 {% extends '@layout/default.html.twig' %}
 
+{% block stylesheets %}
+<!-- include summernote css/js-->
+<link href="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.css" rel="stylesheet">
+
+{% endblock %}
+
 {% block title %}{{title}}{% endblock %}
 
 {% block content %}
@@ -32,7 +38,7 @@
     {#content#}
     <div class="form-group">
         <label for="page_content">Content</label>
-        <div id="page_content" class="form-control" style="height: 210px;">{{page.content}}</div>
+        <div id="page_content" class="form-control">{{page.content |raw}}</div>
         <textarea id="page_content_hidden" class="hide" name="content" rows="3"></textarea>
     </div>
     
@@ -41,7 +47,7 @@
         <label for="page_templates">Template</label>
         <select id="page_templates" class="form-control" name="templateId" required>
             {% for idx,template in page_templates %}
-                <option value="{{ template.id }}" {{  page.templateId == template.id ? ' selected ' : '' }}>{{ template.name }}</option>
+                <option value="{{ template.id }}" {{  page.templateId == template.id ? ' selected ' : '' }}>{{ template.name }} - [{{ template.path }}]</option>
             {% endfor %}
         </select>
     </div>
@@ -111,17 +117,30 @@
     <button type="submit" class="btn btn-default">Submit</button>
 </form>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
+{#<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>#}
 <script>
-    var editor = ace.edit("page_content");
-    editor.setTheme("ace/theme/solarized_dark");
-    editor.getSession().setMode("ace/mode/twig");
+    // var editor = ace.edit("page_content");
+    // editor.setTheme("ace/theme/solarized_dark");
+    // editor.getSession().setMode("ace/mode/twig");
 </script>
 
 <script>
 function processForm() {
-    document.getElementById("page_content_hidden").value = editor.getSession().getValue();
+    // document.getElementById("page_content_hidden").value = editor.getSession().getValue();
+    document.getElementById("page_content_hidden").value = $('#page_content').summernote("code");
 }
 </script>
 
+
+
 {% endblock %}
+
+{% block javascript %}
+<script src="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.js"></script>
+<script>
+    $('#page_content').summernote({
+		height: "210px"
+	});
+</script>
+{% endblock %}
+

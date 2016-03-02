@@ -71,6 +71,9 @@ class TemplateAction
             $id = $this->storage->insert('page_templates',$post);
             if(!empty($id)){
                 $path = getcwd().'/templates'.$post['path'];
+                if(substr($path,-1) !== '/'){
+                	$path .= '/';
+                }
                 if (!is_dir($path)) {
                   // dir doesn't exist, make it
                   mkdir($path, 0775, true);
@@ -103,6 +106,9 @@ class TemplateAction
             
             
             $path = getcwd().'/templates'.$post['path'];
+            if(substr($path,-1) !== '/'){
+            	$path .= '/';
+            }
             if (!is_dir($path)) {
               // dir doesn't exist, make it
               mkdir($path, 0775, true);

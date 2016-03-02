@@ -87,6 +87,7 @@ class PageAction
         $id = $Request->getAttribute('id', false);
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
+            unset($post['files']);
             // var_dump($post);exit();
             $this->storage->update('pages',$post, ['id' => $id]);
             $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
