@@ -6,13 +6,14 @@
 
 {% endblock %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}Edit page{% endblock %}
 
 {% block content %}
-
-{% for message in messages %}
-    <div class="alert alert-danger" role="alert">{{message}}</div>
-{% endfor %}
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
 
 <form method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
     

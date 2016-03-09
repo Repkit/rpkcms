@@ -1,6 +1,6 @@
 {% extends '@layout/default.html.twig' %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}Pages{% endblock %}
 
 {% block content %}
 <a target="_self" href="{{ url('admin.page', {'action': 'add'}) }}">Add new page</a>
@@ -12,6 +12,4 @@
     </li>
 {% endfor %}
 </ul>
-<hr>
-<small>Pagina <strong>{{title}}</strong> in limba {{language}}</small>
 {% endblock %}

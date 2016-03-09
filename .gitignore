@@ -7,5 +7,12 @@ vendor/
 # Local configs
 config/autoload/*.local.php
 
-#cache files
+# cache files
 data/cache/
+
+# themes
+templates/theme/
+
+# modules configs
+# - Auth/Strategy/Google
+src/Auth/Strategy/Google/strategy.config.php

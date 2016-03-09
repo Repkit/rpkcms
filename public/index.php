@@ -1,6 +1,8 @@
 <?php
 $ts = microtime(true); $ts1 = microtime();
 
+session_start();
+
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';
 $container = require 'config/container.php';
@@ -17,7 +19,6 @@ $app = $container->get('Zend\Expressive\Application');
     return $next($request, $response->withHeader('X-Path', $path));
 });*/
 // ###---- test end
-
 $app->run();
 
 
@@ -29,5 +30,5 @@ $m = @round($size/pow(1024,($i=floor(log($size,1024)))),2);
 $m1 = @round($size1/pow(1024,($i)),2);
 $u = $unit[$i];
 ($t>0.1 || $m>2)?$c='red':$c='green';
-echo '<hr><div style="background:',$c,'; color:white;">',$m,'(',$m1,')',$u,' -- ', $t,'(',$t1,')s</div>';
+// echo '<hr><div style="background:',$c,'; color:white;">',$m,'(',$m1,')',$u,' -- ', $t,'(',$t1,')s</div>';
 //benchmark end

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>{% block title %}{% endblock %} - zend-expressive</title>
+    <title>Why to become a mistaker? - zend-expressive</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
@@ -13,12 +13,8 @@
         .app-content { flex: 1; }
         .app-footer { padding-bottom: 1em; }
         .zf-green, h2 a { color: #68b604; }
-        .navbar-inverse {background-color: #A0B64E;border-color: #F4AC71;}
-        .navbar-inverse .navbar-nav>li>a {color: #FFF;}
-        .navbar-inverse .navbar-nav>li>a:hover {color: #F4AC71;}
     </style>
-    {% block stylesheets %}{% endblock %}
-</head>
+    </head>
 <body class="app">
     <header class="app-header">
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -30,7 +26,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="/">
-                        <img src="{{ asset('logo.png') }}" alt="by-mistake" style="margin-top: -7px;"/>
+                        <img src="/logo.png" alt="by-mistake" style="margin-top: -7px;"/>
                     </a>
                 </div>
                 <div class="collapse navbar-collapse">
@@ -40,7 +36,6 @@
                                 <i class="fa fa-check-square"></i> by-mistake.com
                             </a>
                         </li>
-                        {% if auth.user.info.name is defined %}
                         <li>
                             <a href="/admin/page" target="_self">
                                 <i class="fa fa-sticky-note-o"></i> Pages
@@ -51,26 +46,17 @@
                                 Templates
                             </a>
                         </li>
-                        {% endif %}
                     </ul>
                     
                     <!--login menu-->
                     <ul class="nav navbar-nav pull-right">
-                        {% if auth.user.info.name is defined %}
-                        <li class=" dropdown">
-                            <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                Signed in as  {{ auth.user.info.name }}
-                                {#<span class="caret"></span>#}
-                            </a>
-                            {#<ul class="dropdown-menu">#}
-                            {#    <li><a href="#">Change Password</a></li>#}
-                            {#    <li><a href="#">My Profile</a></li>#}
-                            {#</ul>#}
+                        <li class=" dropdown"><a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Signed in as  <span class="caret"></span></a>
+                            <ul class="dropdown-menu">
+                                <li><a href="#">Change Password</a></li>
+                                <li><a href="#">My Profile</a></li>
+                            </ul>
                         </li>
-                        <li class=""><a href="/auth/logout">Logout</a></li>
-                        {% else %}
-                        <li class=""><a href="/auth/google?redirect=/admin/page">Login with google</a></li>
-                        {% endif %}
+                        <li class=""><a href="#">Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -79,23 +65,23 @@
 
     <div class="app-content">
         <main class="container">
-            {% block content %}{% endblock %}
+                <span style="background-color: rgb(255, 255, 0);"><font color="#00ffff">hello </font></span>world of <b><u><font face="Comic Sans MS">mistakers</font></u></b>! <hr> <a href="http://www.by-mistake.com" target="_blank">by-mistake.com</a>
+<hr>
+<small>Pagina <strong>Why to become a mistaker?</strong> cache generate at 2016-02-29 22:17:02</small>
+this is cms
         </main>
     </div>
 
     <footer class="app-footer">
         <div class="container">
             <hr />
-            {% block footer %}
-                <p>
-                    &copy; 2015 - {{ "now"|date("Y") }} by-mistake. All rights reserved.
+                            <p>
+                    &copy; 2015 - 2016 by-mistake. All rights reserved.
                 </p>
-            {% endblock %}
-        </div>
+                    </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    {% block javascript %}{% endblock %}
-</body>
+    </body>
 </html>

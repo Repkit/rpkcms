@@ -1,0 +1,26 @@
+# install guide
+- add to composer.json
+    "autoload": {
+        "psr-4": {
+            "Auth\\": "src/Auth/",
+            "App\\" : "src/App/",
+            // ... other modules here
+        }
+    },
+- add to config/autoload/middleware-pipeline.global.php
+    'routing' => [
+            'middleware' => [
+                ApplicationFactory::ROUTING_MIDDLEWARE,
+                //... other middleware
+                Auth\Middleware\Authorize::class,
+                // Add more middleware here that needs to introspect the routing
+                // results; this might include:
+                // - route-based authentication
+                // - route-based validation
+                // - etc.
+                //... other middleware
+                ApplicationFactory::DISPATCH_MIDDLEWARE,
+            ],
+            'priority' => 1,
+        ],
+- copy-paste in config/autoload auth.global.php.dist and remove dist extension

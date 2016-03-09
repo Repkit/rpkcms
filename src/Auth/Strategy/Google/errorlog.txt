@@ -1,0 +1,41 @@
+* Hostname was found in DNS cache
+* Hostname in DNS cache was stale, zapped
+*   Trying 74.125.195.84...
+* Connected to accounts.google.com (74.125.195.84) port 443 (#2)
+* successfully set certificate verify locations:
+*   CAfile: none
+  CApath: /etc/ssl/certs
+* SSL connection using ECDHE-RSA-AES128-GCM-SHA256
+* Server certificate:
+* 	 subject: C=US; ST=California; L=Mountain View; O=Google Inc; CN=accounts.google.com
+* 	 start date: 2016-02-17 10:29:45 GMT
+* 	 expire date: 2016-05-17 00:00:00 GMT
+* 	 subjectAltName: accounts.google.com matched
+* 	 issuer: C=US; O=Google Inc; CN=Google Internet Authority G2
+* 	 SSL certificate verify ok.
+> POST /o/oauth2/token HTTP/1.1
+Host: accounts.google.com
+Accept: */*
+Content-Length: 294
+Content-Type: application/x-www-form-urlencoded
+
+* upload completely sent off: 294 out of 294 bytes
+< HTTP/1.1 400 Bad Request
+< Content-Type: application/json; charset=utf-8
+< P3P: CP="This is not a P3P policy! See https://support.google.com/accounts/answer/151657?hl=en for more info."
+< Date: Fri, 04 Mar 2016 21:51:52 GMT
+< Expires: Fri, 04 Mar 2016 21:51:52 GMT
+< Cache-Control: private, max-age=0
+< X-Content-Type-Options: nosniff
+< X-Frame-Options: SAMEORIGIN
+< X-XSS-Protection: 1; mode=block
+* Server GSE is not blacklisted
+< Server: GSE
+< Set-Cookie: NID=77=brTWXgsBNabCLLWa8fJ0x1Rjc_ovs_lQoepr_1vMYovWeCWEyJEDwD8dBkqIi8lCCZBpjhTUe1Wp3lR_HLpMg25fBSttSHq1lB-ta-HIaJADn-kkkMr27fRXvFLfF-RB;Domain=.google.com;Path=/;Expires=Sat, 03-Sep-2016 21:51:52 GMT;HttpOnly
+< Alternate-Protocol: 443:quic,p=1
+< Alt-Svc: quic=":443"; ma=2592000; v="30,29,28,27,26,25"
+< Accept-Ranges: none
+< Vary: Accept-Encoding
+< Transfer-Encoding: chunked
+< 
+* Connection #2 to host accounts.google.com left intact

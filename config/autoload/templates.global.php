@@ -25,8 +25,11 @@ return [
         'cache_dir'      => false,
         'assets_url'     => '/',
         'assets_version' => null,
-        'extensions'     => [
+        /*'extensions'     => [
             // extension service names or instances
         ],
+        'globals' => [
+            // Global variables passed to twig templates
+        ],*/
     ],
 ];

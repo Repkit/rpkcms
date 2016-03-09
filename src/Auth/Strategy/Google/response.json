@@ -1,0 +1,26 @@
+{
+  "uid": "116544776315755836109",
+  "info": {
+    "name": "repkit",
+    "email": "repkit@gmail.com",
+    "first_name": "repkit",
+    "last_name": ".",
+    "image": "https://lh6.googleusercontent.com/-PWuO1BdGgsE/AAAAAAAAAAI/AAAAAAAACDI/Ny9_eZLpRgo/photo.jpg"
+  },
+  "credentials": {
+    "token": "ya29.nQJy5LrG7PrJmYiUi8mDA8CHZtXLegkr7CElWjhlrJbmA-CUsjaaObtntkfb6pPYP-g",
+    "expires": "2016-03-06T17:33:25+00:00"
+  },
+  "raw": {
+    "id": "116544776315755836109",
+    "email": "repkit@gmail.com",
+    "verified_email": "1",
+    "name": "repkit",
+    "given_name": "repkit",
+    "family_name": ".",
+    "link": "https://plus.google.com/116544776315755836109",
+    "picture": "https://lh6.googleusercontent.com/-PWuO1BdGgsE/AAAAAAAAAAI/AAAAAAAACDI/Ny9_eZLpRgo/photo.jpg",
+    "locale": "ro"
+  },
+  "provider": "Google"
+}

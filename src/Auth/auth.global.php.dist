@@ -1,0 +1,17 @@
+<?php
+
+/*first is checked middleware and if passed by this auth route came into action*/
+// https://github.com/zendframework/zend-expressive/issues/249
+
+return [
+    'auth' => [
+        'authorize' => [
+            'middleware' => [
+                '_middleware-name_' => [role1,role2,..,rolen],
+            ],
+            'route' => [
+                '_route-name_' => [role1,role2,..,rolen],
+            ],
+        ],
+    ],
+];
