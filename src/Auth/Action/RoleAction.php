@@ -1,6 +1,6 @@
 <?php
 
-namespace Page\Action;
+namespace Auth\Action;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -8,10 +8,10 @@ use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Router;
 use Zend\Expressive\Template;
-use Page\Storage\StorageInterface;
-use Page\Storage\StorageException;
+use Auth\Storage\StorageInterface;
+use Auth\Storage\StorageException;
 
-class CategoryAction
+class RoleAction
 {
     private $router;
 
@@ -36,7 +36,7 @@ class CategoryAction
         $path = $Request->getOriginalRequest()->getUri()->getPath();
         $pagdata = $this->getPaginationDataFromRequest($Request);
         
-        $entities = $this->storage->fetchAll('page_categories');
+        $entities = $this->storage->fetchAll('user_roles');
         $cnt = count($entities);
         
         // If the requested page is later than the last, redirect to the last
@@ -50,10 +50,10 @@ class CategoryAction
         $entities->setCurrentPageNumber($pagdata['page']);
 
         // $data['pages'] = iterator_to_array($pages->getItemsByPage($page));
-        $data['page_categories'] = iterator_to_array($entities->getCurrentItems());
+        $data['user_roles'] = iterator_to_array($entities->getCurrentItems());
         
         // return new JsonResponse($data);
-        return new HtmlResponse($this->template->render('page/category::list', $data));
+        return new HtmlResponse($this->template->render('role::list', $data));
         // return new HtmlResponse($this->template->render('page::category-list', $data));
         
     }
@@ -63,17 +63,19 @@ class CategoryAction
         $data = [];
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
-            $id = $this->storage->insert('page_categories',$post);
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
+            $id = $this->storage->insert('user_roles',$post);
             if(!empty($id)){
-                $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
+                $url = $this->router->generateUri('admin.auth.role', ['action' => 'edit','id' => $id]);
                 return $Response
                     ->withStatus(302)
                     ->withHeader('Location', (string) $url);
             }
         }
         
-        return new HtmlResponse($this->template->render('page/category::add', $data));
+        $data['role_parents'] = $this->storage->parents('user_roles');
+        
+        return new HtmlResponse($this->template->render('role::add', $data));
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -83,18 +85,19 @@ class CategoryAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
-            $this->storage->update('page_categories',$post, ['id' => $id]);
-            $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
+            $this->storage->update('user_roles',$post, ['id' => $id]);
+            $url = $this->router->generateUri('admin.auth.role', ['action' => 'edit','id' => $id]);
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
         }
         
-        $entity = $this->storage->fetch('page_categories',$id);
-        // var_dump($entity);exit();
-        $data['page_category'] = $entity;
-        return new HtmlResponse($this->template->render('page/category::edit', $data));
+        $data['user_role'] = $this->storage->fetch('user_roles',$id);
+        // $data['role_parents'] = $this->storage->fetchAll('user_roles',[]);
+        $data['role_parents'] = $this->storage->parents('user_roles',$id);
+        
+        return new HtmlResponse($this->template->render('role::edit', $data));
     }
     
 }

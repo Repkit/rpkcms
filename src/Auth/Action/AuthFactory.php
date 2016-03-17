@@ -7,7 +7,6 @@ class AuthFactory
     {
         $config = $services->get('config');
         $config = $config['opauth'];
-        // var_dump($config);exit(__CLASS__);
         return new AuthAction($config);
     }
 }

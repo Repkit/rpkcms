@@ -15,22 +15,26 @@ class AuthCallbackAction
 
     public function __invoke($req, $res, $next)
     {
-        session_start();
-        
         $auth         = new Opauth($this->config, false);
         $authResponse = null;
         
         switch($auth->env['callback_transport']) {
             case 'session':
-                session_start();
-        		$authResponse = $_SESSION['opauth'];
+                if(!session_id()) {
+					session_start();
+				}
+    			$authResponse = $_SESSION['opauth'];
         		unset($_SESSION['opauth']);
+        		$redirect = $_SESSION['auth']['redirect'];
+        		unset($_SESSION['auth']['redirect']);
                 break;
             case 'post':
                 $authResponse = unserialize(base64_decode($req->getParsedBody()['opauth']));
+                $redirect = unserialize(base64_decode($req->getParsedBody()['auth']['redirect']));
                 break;
             case 'get':
                 $authResponse = unserialize(base64_decode($req->getQueryParams()['opauth']));
+                $redirect = unserialize(base64_decode($req->getQueryParams()['auth']['redirect']));
                 break;
             default:
                 return $next($req, $res->withStatus(400), 'Invalid request');
@@ -65,16 +69,12 @@ class AuthCallbackAction
         //authentication success
         // var_dump($authResponse);exit(__CLASS__.__LINE__);
         $_SESSION['auth']['user'] = $authResponse['auth'];
-        // var_dump($_SESSION);exit(__CLASS__.__LINE__);
 
         $uri = $req->getUri()->withPath('/');
-        $redirect = $_SESSION['auth']['redirect'];
+        
         if ($redirect) {
             $uri = new Uri($redirect);
-            $_SESSION['auth']['redirect'] = null;
         }
-        $uri = '/admin/page';
-        // $uri = '/admin/page?'.http_build_query($_SESSION['auth']['user']);
 
         return $res
             ->withStatus(302)

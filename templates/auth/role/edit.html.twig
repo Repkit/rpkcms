@@ -1,0 +1,51 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Edit role: {{user_role.name}}{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+
+<form method="post" action="{{ url('admin.auth.role', {'action': 'edit'}) }}">
+    
+    <input type="hidden" name="id" id="role_id" value="{{user_role.id}}" required>  
+    
+    {#name#}
+    <div class="form-group">
+        <label for="role_name">Name</label>
+        <input type="text" name="name" class="form-control" id="role_name" value="{{user_role.name}}" placeholder="name" required>
+    </div>
+  
+    {#parent#}
+    <div class="form-group">
+        <label for="role_parents">Parent</label>
+        <select id="role_parents" class="form-control" name="parentId">
+            <option value="0">None</option>
+            {% for idx, parent in role_parents %}
+                <option value="{{ parent.id }}" {{  user_role.parentId == parent.id ? ' selected ' : '' }}>{{ parent.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+  
+    {#state#}
+    <div class="form-group">
+        <label for="role_state">State</label>
+        <select id="role_state" class="form-control" name="state">
+          {% if user_role.state %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

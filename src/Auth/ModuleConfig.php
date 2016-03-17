@@ -14,9 +14,14 @@ class ModuleConfig
                     Action\LogoutAction::class          => Action\LogoutFactory::class,
                     Middleware\Auth::class              => Middleware\Auth::class,
                     Middleware\Authorize::class         => Middleware\AuthorizeFactory::class,
+                    
+                    //user related
+                    Storage\StorageInterface::class     => Storage\Adapter\PdoFactory::class,
+                    Middleware\User::class              => Middleware\UserFactory::class,
+                    Action\RoleAction::class            => Action\RoleFactory::class,
+                    Action\UserAction::class            => Action\UserFactory::class,
                 ],
             ],
-            // 'routes' => [],
             'middleware_pipeline' => [
                 'auth' => [
                     'path'       => '/auth',
@@ -35,13 +40,58 @@ class ModuleConfig
                 'security_timeout'      => '2 minutes',
                 'strategy_dir'          => __DIR__.'/Strategy/',
                 'Strategy'              => [
-                    'Google' => require dirname(__FILE__).'Google/strategy.config.php',
+                    'Google' => require dirname(__FILE__).'/Strategy/Google/strategy.config.php',
                 ],
             ],
             'twig' => [
                 'globals' => [
                     'auth' => $_SESSION['auth'],
                 ],
+            ],
+            'routes' => [
+                'admin-auth-role' => [
+                    'name' => 'admin.auth.role',
+                    'path' => '/admin/auth/role[/{action:add|edit}[/{id}]]',
+                    'middleware' => Action\RoleAction::class,
+                    'allowed_methods' => ['GET','POST'],
+                ],
+                'admin-auth-user' => [
+                    'name' => 'admin.auth.user',
+                    'path' => '/admin/auth/user[/{action:add|edit}[/{id}]]',
+                    'middleware' => Action\UserAction::class,
+                    'allowed_methods' => ['GET','POST'],
+                ],
+            ],
+            'templates' => [
+                'paths'     => [
+                    'user'      => ['templates/auth/user'],
+                    'role'      => ['templates/auth/role'],
+                    'user-role' => ['templates/auth/user'],
+                ],
+            ],
+            'auth' => [
+                'storage' => [
+                    'connection_string' => null, //if this is set connection_data is ignored
+                    'connection_data' => [
+                        'adapter'     => 'mysql',
+                        //'unix_socket' => 'path/to/unix',
+                        // 'host'        => 'localhost(127.0.0.1)',
+                        'host'        => 'localhost',
+                        'username'    => 'root',
+                        'password'    => '',
+                        'dbname'      => 'rpkcms',
+                    ],
+                    'attributes'  => [
+                        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
+                        \PDO::ATTR_EMULATE_PREPARES => false,
+                        \PDO::MYSQL_ATTR_INIT_COMMAND => 
+                            "SET NAMES utf8; SET time_zone = 'Europe/Bucharest'"
+                    ],
+                ],
+                'mapper' => [
+                    'google' => Storage\Mapper\Google::class     
+                ],
+                'secretKey' => 'pQnaB}Dw(<S)VY`j:2M/%',
             ],
         ];
     }

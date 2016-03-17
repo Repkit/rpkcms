@@ -16,6 +16,20 @@
         .navbar-inverse {background-color: #A0B64E;border-color: #F4AC71;}
         .navbar-inverse .navbar-nav>li>a {color: #FFF;}
         .navbar-inverse .navbar-nav>li>a:hover {color: #F4AC71;}
+        .navbar-nav>.open>a:focus, .navbar-inverse .navbar-nav>.open>a:hover {
+            background-color: #F4AC71;
+        }
+        .navbar-nav>.open>a.active, .navbar-inverse .navbar-nav>.open>a.active {
+            background-color: #F4AC71;
+        }
+        .dropdown-menu {background-color: #A0B64E;}
+        .dropdown-menu>li>a { color: #FFF;}
+        .navbar-nav>li>.dropdown-menu {border: 1px solid #F4AC71;}
+        .dropdown-menu>li>a:focus, .dropdown-menu>li>a:hover {
+            color: #F4AC71;
+            text-decoration: none;
+            background-color: #A0B64E; 
+        }
     </style>
     {% block stylesheets %}{% endblock %}
 </head>
@@ -41,15 +55,26 @@
                             </a>
                         </li>
                         {% if auth.user.info.name is defined %}
-                        <li>
-                            <a href="/admin/page" target="_self">
-                                <i class="fa fa-sticky-note-o"></i> Pages
+                        <li class=" dropdown">
+                            <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Pages
+                                <span class="caret"></span>
                             </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/page"><i class="fa fa-sticky-note-o"></i> Page</a></li>
+                                <li><a href="/admin/page-category">Category</a></li>
+                                <li><a href="/admin/page-template">Template</a></li>
+                            </ul>
                         </li>
-                        <li>
-                            <a href="/admin/page-template">
-                                Templates
+                        <li class=" dropdown">
+                            <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+                                Auth
+                                <span class="caret"></span>
                             </a>
+                            <ul class="dropdown-menu">
+                                <li><a href="/admin/auth/role">Role</a></li>
+                                <li><a href="/admin/auth/user">Users</a></li>
+                            </ul>
                         </li>
                         {% endif %}
                     </ul>

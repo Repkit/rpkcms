@@ -4,9 +4,11 @@
 
 {% block content %}
 
-{% for message in messages %}
-    <div class="alert alert-danger" role="alert">{{message}}</div>
-{% endfor %}
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
 
 <form method="post" action="{{ url('admin.page-template', {'action': 'edit'}) }}" onsubmit="processForm()">
     

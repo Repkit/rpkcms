@@ -1,0 +1,16 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Roles{% endblock %}
+
+{% block content %}
+<a target="_self" href="{{ url('admin.auth.role', {'action': 'add'}) }}">Add new role</a>
+<ul id="navigation">
+{% for user_role in user_roles %}
+    <li>
+        <a href="#">{{ user_role.name }}</a>
+        <a target="_self" href="{{ url('admin.auth.role', {'action': 'edit','id' : user_role.id}) }}">edit</a>
+    </li>
+{% endfor %}
+</ul>
+<hr>
+{% endblock %}

@@ -1,12 +1,14 @@
 {% extends '@layout/default.html.twig' %}
 
-{% block title %}{{title}}{% endblock %}
+{% block title %}Edot category: {{page_category.name}}{% endblock %}
 
 {% block content %}
 
-{% for message in messages %}
-    <div class="alert alert-danger" role="alert">{{message}}</div>
-{% endfor %}
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
 
 <form method="post" action="{{ url('admin.page-category', {'action': 'edit'}) }}">
     

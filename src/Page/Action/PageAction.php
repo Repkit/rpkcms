@@ -53,7 +53,7 @@ class PageAction
         $data['pages'] = iterator_to_array($entities->getCurrentItems());
         
         // return new JsonResponse($data);
-        return new HtmlResponse($this->template->render('templates/page::list', $data));
+        return new HtmlResponse($this->template->render('page::list', $data));
         
     }
 
@@ -73,12 +73,13 @@ class PageAction
         }
         
         $data['page_templates'] = $this->storage->fetchAll('page_templates');
-        $data['page_parents'] = $this->storage->fetchAll('pages',[]);
+        // $data['page_parents'] = $this->storage->fetchAll('pages',[]);
+        $data['page_parents'] = $this->storage->parents('pages');
         $data['page_categories'] = $this->storage->fetchAll('page_categories',[]);
         $data['user_roles'] = $this->storage->fetchAll('user_roles',[]);
         $data['page_statuses'] = $this->storage->fetchAll('page_statuses');
         
-        return new HtmlResponse($this->template->render('templates/page::add', $data));
+        return new HtmlResponse($this->template->render('page::add', $data));
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -88,11 +89,11 @@ class PageAction
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             unset($post['files']);
-            // var_dump($post);exit();
             $this->storage->update('pages',$post, ['id' => $id]);
             $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
             
             // delete cached file
+            // TODO [IMPROVEMENT]: get from config or pass responsability to a service
             $cachepath = getcwd().'/public/data/cache/html/';
             $file = $cachepath.$post['slug'].'.html';
             if(file_exists($file)){
@@ -107,14 +108,15 @@ class PageAction
         // gather all data required for composing page
         $data['page'] = $this->storage->fetch('pages',$id);
         $data['page_templates'] = $this->storage->fetchAll('page_templates');
-        $data['page_parents'] = $this->storage->fetchAll('pages',[]);
+        // $data['page_parents'] = $this->storage->fetchAll('pages',[]);
+        $data['page_parents'] = $this->storage->parents('pages',$id);
         $data['page_categories'] = $this->storage->fetchAll('page_categories',[]);
         $data['user_roles'] = $this->storage->fetchAll('user_roles',[]);
         $data['page_statuses'] = $this->storage->fetchAll('page_statuses');
         $data['page_meta'] = $this->storage->fetchAll('page_meta',['pageId'=>$id]);
         $data['page_meta_tags'] = $this->storage->fetchAll('page_meta_tags',['pageId'=>$id]);
         
-        return new HtmlResponse($this->template->render('templates/page::edit', $data));
+        return new HtmlResponse($this->template->render('page::edit', $data));
     }
     
 }

@@ -1,10 +1,10 @@
 <?php
 
-namespace Page\Storage\Adapter;
+namespace Auth\Storage\Adapter;
 
 use Zend\Paginator\Paginator;
-use Page\Storage\StorageInterface;
-use Page\Storage\Paginator\PdoPaginator;
+use Auth\Storage\StorageInterface;
+use Auth\Storage\Paginator\PdoPaginator;
 
 
 class PdoAdapter implements StorageInterface
@@ -25,14 +25,6 @@ class PdoAdapter implements StorageInterface
         
         return $select->fetch(\PDO::FETCH_ASSOC);
     }
-    /*public function fetch($Id)
-    {
-        $select = $this->pdo->prepare('SELECT * from pages WHERE id = :id');
-        if (! $select->execute([':id' => $Id])) {
-            return false;
-        }
-        return $select->fetch();
-    }*/
     
     public function fetchAll($Name, array $Where = ['state' => 1], $OrderBy = 'creationDate DESC')
     {
@@ -52,12 +44,6 @@ class PdoAdapter implements StorageInterface
         $count  = "SELECT COUNT(id) FROM $Name $where";
         return $this->preparePaginator($select, $count);
     }
-    /*public function fetchAll()
-    {
-        $select = 'SELECT * FROM pages WHERE state = 1 ORDER BY creationDate DESC LIMIT :offset, :limit';
-        $count  = 'SELECT COUNT(id) FROM pages WHERE state = 1';
-        return $this->preparePaginator($select, $count);
-    }*/
     
     //insert query
 	/*
@@ -66,13 +52,15 @@ class PdoAdapter implements StorageInterface
 	*/
     public function insert($Name, array $Data = [], array $Unique = []) 
     {
+        
+        $Data['creationDate'] = date('Y-m-d H:i:s');
+        
         $params = [];
 		$values = [];
 		
 		//populating field array
 		foreach($Data as $field => $value){
 			$params[] = ':'. $field;
-			// $values[':'.$field] = htmlentities($value);
 			$values[':'.$field] = $value;
 		}
 		
@@ -80,40 +68,14 @@ class PdoAdapter implements StorageInterface
 		$params = implode(',',$params);
 		$fields = implode(',', array_keys($Data));
 		
-		// checking wheather same value exists or not
-		/*$duplicate = false;
-		if( count($Unique) > 0 ){
-			$condition = [];
-			foreach($Unique as $fieldName){
-				$condition[] = $fieldName." = '".$Data[$fieldName]."' ";
-			}
-			$sql = "SELECT $Unique[0] FROM $Name WHERE ".implode('AND ',$condition);
-			$res = $this->pdo->query($sql);
-			
-			//checking duplicate
-			if( $res->rowCount() > 0 ) {
-			    $duplicate = true;
-			}
-		}*/
+		$sql = 'INSERT INTO '.$Name.' ('.$fields.') VALUES('.$params.')';
 		
-		//processing insertsion while there is no duplicated value
-		//if(!$duplicate) {
-			$sql = 'INSERT INTO '.$Name.' ('.$fields.') VALUES('.$params.')';
+		//query
+		$insert = $this->pdo->prepare($sql);
+		$insert->execute($values);
 			
-			//query
-			$insert = $this->pdo->prepare($sql);
-			$insert->execute($values);
-			
-			// affected row
-			//$affectedRow = $insert->rowCount();
-			
-			// last inseretd id
-			//$lastInsertedId = $this->pdo->lastInsertId();
-		//}
-		
 		// returning insert log
 		return $this->pdo->lastInsertId();
- 		//return array('affectedRow' => $affectedRow, 'insertedId' => $lastInsertedId, 'duplicate' => $duplicate);
     }
     
     public function update($Name, array $Data, array $Where)
@@ -124,7 +86,6 @@ class PdoAdapter implements StorageInterface
 		//populating field array
 		foreach($Data as $field => $value){
 			$params[] = $field.' = :'.$field;
-			// $values[':'.$field] = htmlentities($value);
 			$values[':'.$field] = $value;
 		}
 		
@@ -149,21 +110,72 @@ class PdoAdapter implements StorageInterface
 		return $update->rowCount();
     }
     
-    public function pageBySlug($page)
+    public function insertMeta($Name, array $Data, array $Metadata, array $Metakeys = ['metaKey', 'metaValue']) 
     {
-        $q = '  SELECT pages.*, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
-                FROM pages
-                INNER JOIN page_templates 
-                    ON pages.templateId = page_templates.id
-                WHERE 
-                    pages.state = 1
-                    AND pages.slug = :slug';
-        $select = $this->query($q, [':slug' => $page]);
-        if($select){
-            $select = $select->fetch(\PDO::FETCH_ASSOC);
+        
+        $params = $values = $paramsMeta = [];
+        
+        foreach($Metakeys as $metaField){
+            unset($Data[$metaField]);
         }
         
-        return $select;
+		$Data['creationDate'] = date('Y-m-d H:i:s');
+		
+		//generating field string
+		$fields = implode(',', array_keys($Data));
+		$fields .= ','. implode(',', $Metakeys);
+		
+		$n = 0;
+		$metaKey = $Metakeys[0];
+		$metaValue = $Metakeys[1];
+        foreach ($Metadata as $key => $value) {
+            $params[$n] = ' ( ';
+            foreach($Data as $field => $val){
+    			$params[$n] .= ":$field$n, ";
+    			$values[":$field$n"] = $val;
+    		}
+            $params[$n] .= ":$metaKey$n, :$metaValue$n";
+            $values["$metaKey$n"] = $key;
+            $values["$metaValue$n"] = $value;
+            $params[$n] .= ' ) ';
+            $n++;
+        }
+		
+		$sql = 'INSERT INTO '.$Name.' ('.$fields.') VALUES '.implode(',',$params);
+		
+		//query
+		$insert = $this->pdo->prepare($sql);
+		$insert->execute($values);
+			
+		// returning insert log
+		return $this->pdo->lastInsertId();
+    }
+    
+    
+    public function userByEmail($Email)
+    {
+        $select = $this->pdo->prepare("SELECT users.*, user_roles.id as roleId, user_roles.name as role from users 
+            inner join users_roles on users.id = users_roles.userId 
+            inner join user_roles on users_roles.roleId = user_roles.id 
+            WHERE users.email = :email");
+        if (! $select->execute([":email" => $Email])) {
+            return false;
+        }
+        
+        return $select->fetch(\PDO::FETCH_ASSOC);
+    }
+    
+    public function userById($Id)
+    {
+        $select = $this->pdo->prepare("SELECT users.*, user_roles.id as roleId, user_roles.name as role from users 
+            inner join users_roles on users.id = users_roles.userId 
+            inner join user_roles on users_roles.roleId = user_roles.id 
+            WHERE  users.id = :id");
+        if (! $select->execute([":id" => $Id])) {
+            return false;
+        }
+        
+        return $select->fetch(\PDO::FETCH_ASSOC);
     }
     
     public function parents($Name, $Id = -1)

@@ -7,7 +7,7 @@
 <ul id="navigation">
 {% for page_template in page_templates %}
     <li>
-        <a href="#">{{ page_template.name }}</a>
+        <a href="#">{{ page_template.name }} - [{{ page_template.path }}]</a>
         <a target="_self" href="{{ url('admin.page-template', {'action': 'edit','id' : page_template.id}) }}">edit</a>
     </li>
 {% endfor %}

@@ -27,7 +27,8 @@ class Authorize
         // authorize middleware
         $middleware = $match->getMatchedMiddleware();
         if(!empty(($roles = $this->config['authorize']['middleware'][$middleware]))){
-            if(empty(($user = $_SESSION['auth']['user'])) || $user['info']['email'] !== 'repkit@gmail.com'){
+            // var_dump($roles);exit(__FILE__.'::'.__LINE__);
+            if(empty(($user = $_SESSION['auth']['user'])) || !in_array($user['role'],$roles)){
                 return $next($req, $res->withStatus(403), 'This is a restricted area!');
             }
         }

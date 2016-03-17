@@ -52,7 +52,7 @@ class TemplateAction
         $data['page_templates'] = iterator_to_array($entities->getCurrentItems());
         
         // return new JsonResponse($data);
-        return new HtmlResponse($this->template->render('templates/page/template::list', $data));
+        return new HtmlResponse($this->template->render('page/template::list', $data));
         // return new HtmlResponse($this->template->render('page::category-list', $data));
         
     }
@@ -89,7 +89,7 @@ class TemplateAction
             $data['content'] = $content;
         }
         
-        return new HtmlResponse($this->template->render('templates/page/template::add', $data));
+        return new HtmlResponse($this->template->render('page/template::add', $data));
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -99,7 +99,6 @@ class TemplateAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
             // TODO: [SECURITY] - validate content
             $content = $post['content'];
             unset($post['content']);
@@ -132,8 +131,16 @@ class TemplateAction
                 }
             }
             
-            
-            // TODO: delete cache for pages that use this template
+            // delete cache of the pages that use this template
+            // TODO [PERFORMANCE]: query only for slug column
+            $pages = $this->storage->parents('pages',['templateId'=>$id]);
+            $cachepath = getcwd().'/public/data/cache/html/';
+            foreach($pages as $page){
+                $file = $cachepath.$page['slug'].'.html';
+                if(file_exists($file)){
+                     unlink(realpath($file));
+                }
+            }
             $url = $this->router->generateUri('admin.page-template', ['action' => 'edit','id' => $id]);
             return $Response
                 ->withStatus(302)
@@ -141,11 +148,10 @@ class TemplateAction
         }
         
         $entity = $this->storage->fetch('page_templates',$id);
-        // var_dump($entity);exit();
         $content = file_get_contents(getcwd().'/templates'.$entity['path'].$entity['name'].'.html.twig');
         $data['page_template'] = $entity;
         $data['page_template']['content'] = $content;
-        return new HtmlResponse($this->template->render('templates/page/template::edit', $data));
+        return new HtmlResponse($this->template->render('page/template::edit', $data));
     }
     
 }

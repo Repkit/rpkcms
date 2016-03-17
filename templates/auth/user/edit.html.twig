@@ -1,0 +1,45 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Edit user: {{user.username}}{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+<h1>{{ user.username }} - {{ user.email }}</h1>
+<form method="post" action="{{ url('admin.auth.user', {'action': 'edit'}) }}">
+    
+    <input type="hidden" name="userId" id="user_id" value="{{user.id}}" required>  
+    
+    {#role#}
+    <div class="form-group">
+        <label for="role">Role</label>
+        <select id="role" class="form-control" name="roleId">
+            <option value="0">None</option>
+            {% for idx, role in user_roles %}
+                <option value="{{ role.id }}" {{  user.roleId == role.id ? ' selected ' : '' }}>{{ role.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+  
+    {#state#}
+    <div class="form-group">
+        <label for="role_state">State</label>
+        <select id="role_state" class="form-control" name="state">
+          {% if user.state %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

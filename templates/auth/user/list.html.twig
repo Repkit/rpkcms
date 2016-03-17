@@ -1,0 +1,15 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Users{% endblock %}
+
+{% block content %}
+<ul id="navigation">
+{% for user in users %}
+    <li>
+        <strong>{{ user.username }} ({{user.email }})</strong>
+        <a target="_self" href="{{ url('admin.auth.user', {'action': 'edit','id' : user.id}) }}">edit</a>
+    </li>
+{% endfor %}
+</ul>
+<hr>
+{% endblock %}

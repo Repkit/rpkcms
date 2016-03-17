@@ -8,9 +8,7 @@ class ModuleConfig
     {
         return [
             'dependencies' => [
-                'invokables' => [
-                    
-                ],
+                // 'invokables' => [],
                 'factories' => [
                     Storage\StorageInterface::class => Storage\Adapter\PdoFactory::class,
                     Action\CacheAction::class =>
@@ -52,8 +50,9 @@ class ModuleConfig
             ],
             'templates' => [
                 'paths'     => [
-                    // 'page'    => ['templates/page'],
-                    'templates'    => ['templates'],
+                    'page'      => ['templates/page'],
+                    'theme'     => ['templates/theme'],
+                    'templates' => ['templates'],
                 ],
             ],
             'page' => [

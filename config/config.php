@@ -5,8 +5,8 @@ use Zend\Expressive\ConfigManager\PhpFileProvider;
 
 $configManager = new ConfigManager([
     new PhpFileProvider('config/autoload/{{,*.}global,{,*.}local}.php'),
-    Page\ModuleConfig::class,
     Auth\ModuleConfig::class,
+    Page\ModuleConfig::class,
 ], 'data/config-cache.php');
 
 // $cfg = new ArrayObject($configManager->getMergedConfig());

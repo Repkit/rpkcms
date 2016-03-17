@@ -40,7 +40,7 @@ class CacheAction
             // $lang = $Request->getAttribute('lang', 'en');
             
             //detecting requested page
-            //TODO: [PERFORMANCE] -check if better get from request first
+            // TODO: [PERFORMANCE] -check if better get from request first
             if(preg_match('#\.(html|xml)$#', $path, $matches)){
                 $page = substr($path,1,-strlen(reset($matches)));
             }else{
@@ -58,6 +58,7 @@ class CacheAction
             
             
             // $file = getcwd().'/data/cache/html/'.$lang.'_'.$page.'.html';
+            // TODO [IMPROVEMENT]: get from config or pass responsability to a service
             $cachepath = getcwd().'/public/data/cache/html/';
             $filename = $page.'.html';
             $file = $cachepath.$filename;

@@ -1,6 +1,6 @@
 <?php
 
-namespace Page\Action;
+namespace Auth\Action;
 
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -8,10 +8,10 @@ use Zend\Diactoros\Response\HtmlResponse;
 use Zend\Diactoros\Response\JsonResponse;
 use Zend\Expressive\Router;
 use Zend\Expressive\Template;
-use Page\Storage\StorageInterface;
-use Page\Storage\StorageException;
+use Auth\Storage\StorageInterface;
+use Auth\Storage\StorageException;
 
-class CategoryAction
+class UserAction
 {
     private $router;
 
@@ -36,7 +36,7 @@ class CategoryAction
         $path = $Request->getOriginalRequest()->getUri()->getPath();
         $pagdata = $this->getPaginationDataFromRequest($Request);
         
-        $entities = $this->storage->fetchAll('page_categories');
+        $entities = $this->storage->fetchAll('users');
         $cnt = count($entities);
         
         // If the requested page is later than the last, redirect to the last
@@ -50,32 +50,14 @@ class CategoryAction
         $entities->setCurrentPageNumber($pagdata['page']);
 
         // $data['pages'] = iterator_to_array($pages->getItemsByPage($page));
-        $data['page_categories'] = iterator_to_array($entities->getCurrentItems());
+        $data['users'] = iterator_to_array($entities->getCurrentItems());
         
         // return new JsonResponse($data);
-        return new HtmlResponse($this->template->render('page/category::list', $data));
+        return new HtmlResponse($this->template->render('user::list', $data));
         // return new HtmlResponse($this->template->render('page::category-list', $data));
         
     }
 
-    public function addAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
-    {
-        $data = [];
-        if ('POST' === $Request->getMethod()) {
-            $post = $Request->getParsedBody();
-            // var_dump($post);exit();
-            $id = $this->storage->insert('page_categories',$post);
-            if(!empty($id)){
-                $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
-                return $Response
-                    ->withStatus(302)
-                    ->withHeader('Location', (string) $url);
-            }
-        }
-        
-        return new HtmlResponse($this->template->render('page/category::add', $data));
-    }
-    
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
     {
         $data = [];
@@ -83,18 +65,29 @@ class CategoryAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
-            $this->storage->update('page_categories',$post, ['id' => $id]);
-            $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
+            $state = $post['state'];
+            unset($post['state']);
+            $this->storage->update('users_roles',$post, ['id' => $id]);
+            $this->storage->update('users',['state'=> $state], ['id' => $id]);
+            
+            //reset user role
+            $_SESSION['auth']['user']['role_hash'] = null;
+            
+            $url = $this->router->generateUri('admin.auth.user', ['action' => 'edit','id' => $id]);
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
         }
         
-        $entity = $this->storage->fetch('page_categories',$id);
-        // var_dump($entity);exit();
-        $data['page_category'] = $entity;
-        return new HtmlResponse($this->template->render('page/category::edit', $data));
+        $data['user'] = $this->storage->userById($id);
+        // $data['user'] = $this->storage->fetch('users',$id);
+        // $data['user_roles'] = $this->storage->fetch('users_roles',$id,'userId');
+        $data['user_roles'] = $this->storage->fetchAll('user_roles',[]);
+        
+        // var_dump($data);exit(__FILE__.'::'.__LINE__);
+        
+        return new HtmlResponse($this->template->render('user::edit', $data));
     }
     
 }
