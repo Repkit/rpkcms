@@ -2,6 +2,7 @@
 $ts = microtime(true); $ts1 = microtime();
 
 session_start();
+// var_dump($_SERVER);exit();
 
 chdir(dirname(__DIR__));
 require 'vendor/autoload.php';

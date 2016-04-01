@@ -7,7 +7,8 @@
 <ul id="navigation">
 {% for page in pages %}
     <li>
-        <a target="_self" href="/{{ page.slug }}.html">{{ page.title }}</a>
+        {#<a target="_self" href="{{ page.path }}/{{ page.slug }}.html">{{ page.title }}</a>#}
+        <a target="_self" href="/{{ page.slug }}">{{ page.title }}</a>
         <a target="_self" href="{{ url('admin.page', {'action': 'edit','id' : page.id}) }}">edit</a>
     </li>
 {% endfor %}

@@ -11,17 +11,31 @@
 {% endif %}
 
 <form method="post" action="{{ url('admin.page-category', {'action': 'add'}) }}">
-      
+    
+    {#name#}
     <div class="form-group">
         <label for="category_name">Name</label>
         <input type="text" name="name" class="form-control" id="category_name" placeholder="name" required>
     </div>
-  
+    
+    {#slug#}
     <div class="form-group">
         <label for="category_slug">Slug</label>
         <input type="text" name="slug" class="form-control" id="category_slug" placeholder="slug" required pattern="^[a-z0-9-]+$">
     </div>
-  
+    
+    {#parent#}
+    <div class="form-group">
+        <label for="page_category_parents">Parent category</label>
+        <select id="page_category_parents" class="form-control" name="parentId">
+            <option value="0">None</option>
+            {% for idx, category in page_category_parents %}
+                <option value="{{ category.id }}">{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    {#state#}
     <div class="form-group">
         <label for="category_state">State</label>
         <select id="category_state" class="form-control" name="state">

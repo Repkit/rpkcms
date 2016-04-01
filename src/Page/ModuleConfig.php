@@ -21,6 +21,13 @@ class ModuleConfig
                         Action\TemplateFactory::class,
                 ],
             ],
+            //middleware for sub directories that are not caught by home route
+            'middleware_pipeline' => [
+                'not-found' => [
+                    'middleware' => Action\CacheAction::class,
+                    'priority' => -10000,
+                ],
+            ],
             'routes' => [
                 'home'=>[
                     // 'name' => 'home',

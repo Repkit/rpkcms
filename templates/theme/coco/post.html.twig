@@ -4,5 +4,7 @@
 
 {% block content %}
 <h1>Post - theme coco</h1>
-{{content}}
+{% autoescape %}
+    {{ content|raw }}
+{% endautoescape %}
 {% endblock %}

@@ -12,16 +12,32 @@
 
 <form method="post" action="{{ url('admin.page-category', {'action': 'edit'}) }}">
     
-    <input type="hidden" name="id" id="category_id" value="{{page_category.id}}" required>  
+    <input type="hidden" name="id" id="category_id" value="{{page_category.id}}" required>
+    {#name#}
     <div class="form-group">
         <label for="category_name">Name</label>
         <input type="text" name="name" class="form-control" id="category_name" value="{{page_category.name}}" placeholder="name" required>
     </div>
   
+    {#slug#}
     <div class="form-group">
         <label for="category_slug">Slug</label>
         <input type="text" name="slug" class="form-control" id="category_slug" value="{{page_category.slug}}" placeholder="slug" required pattern="^[a-z0-9-]+$">
+        <input type="hidden" name="initSlug" value="{{ page_category.slug}}" required>
     </div>
+    
+    {#parent#}
+    <div class="form-group">
+        <label for="page_category_parents">Parent category</label>
+        <select id="page_category_parents" class="form-control" name="parentId">
+            <option value="0">None</option>
+            {% for idx, category in page_category_parents %}
+                <option value="{{ category.id }}" {{  page_category.parentId == category.id ? ' selected ' : '' }}>{{ category.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {#init parent - used to check if parent has been modified to delete cache for all pages in order to regenerate new url#}
+    <input type="hidden" name="initParentId" value="{{ page_category.parentId}}" required>
   
     <div class="form-group">
         <label for="category_state">State</label>
@@ -35,6 +51,8 @@
           {% endif %}
         </select>
     </div>
+    {#init parent - used to check if parent has been modified to delete cache for all pages in order to regenerate new url#}
+    <input type="hidden" name="initState" value="{{ page_category.state}}" required>
   
     <button type="submit" class="btn btn-default">Submit</button>
 </form>

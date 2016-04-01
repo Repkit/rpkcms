@@ -45,7 +45,7 @@ class ModuleConfig
             ],
             'twig' => [
                 'globals' => [
-                    'auth' => $_SESSION['auth'],
+                    'auth' => !empty($_SESSION['auth'])?$_SESSION['auth']:null,
                 ],
             ],
             'routes' => [

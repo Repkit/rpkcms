@@ -37,6 +37,10 @@ class PageAction
         $pagdata = $this->getPaginationDataFromRequest($Request);
         
         $entities = $this->storage->fetchAll('pages');
+        /* - we dont need to generate html links here in order to avoid recursion 
+        *  - for getting page path based on category hierarchy
+        * $entities = $this->storage->fetchAllPages();
+        */
         $cnt = count($entities);
         
         // If the requested page is later than the last, redirect to the last
@@ -62,7 +66,7 @@ class PageAction
         $data = [];
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
+            unset($post['files']);
             $id = $this->storage->insert('pages',$post);
             if(!empty($id)){
                 $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
@@ -94,8 +98,10 @@ class PageAction
             
             // delete cached file
             // TODO [IMPROVEMENT]: get from config or pass responsability to a service
-            $cachepath = getcwd().'/public/data/cache/html/';
-            $file = $cachepath.$post['slug'].'.html';
+            $cachepath = getcwd().'/public/data/cache/html';
+            $data['page'] = $this->storage->pageById($id);
+            // $file = $cachepath.$post['slug'].'.html';
+            $file = $cachepath. $data['page']['path'].'/'.$data['page']['slug'].'.html';
             if(file_exists($file)){
                  unlink(realpath($file));
             }
@@ -103,10 +109,11 @@ class PageAction
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
+        }else{
+            $data['page'] = $this->storage->fetch('pages',$id);
         }
         
         // gather all data required for composing page
-        $data['page'] = $this->storage->fetch('pages',$id);
         $data['page_templates'] = $this->storage->fetchAll('page_templates');
         // $data['page_parents'] = $this->storage->fetchAll('pages',[]);
         $data['page_parents'] = $this->storage->parents('pages',$id);

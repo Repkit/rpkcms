@@ -180,7 +180,8 @@ class PdoAdapter implements StorageInterface
     
     public function parents($Name, $Id = -1)
     {
-        return $this->query("select * from $Name where id != :id", [':id' => $Id]);
+        // return $this->query("select * from $Name where id != :id", [':id' => $Id]);
+        return $this->query("select * from $Name where id != :id1 and parentId < :id2", [':id1' => $Id,':id2' => $Id]);
     }
     
     private function query($Query, array $Params = [])

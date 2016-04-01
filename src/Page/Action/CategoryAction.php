@@ -63,7 +63,6 @@ class CategoryAction
         $data = [];
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
             $id = $this->storage->insert('page_categories',$post);
             if(!empty($id)){
                 $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
@@ -73,6 +72,7 @@ class CategoryAction
             }
         }
         
+        $data['page_category_parents'] = $this->storage->parents('page_categories');
         return new HtmlResponse($this->template->render('page/category::add', $data));
     }
     
@@ -83,17 +83,37 @@ class CategoryAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
+            // init parent
+            $initParentId = $post['initParentId'];
+            unset($post['initParentId']);
+            //init slug
+            $initSlug = $post['initSlug'];
+            unset($post['initSlug']);
+            //init state
+            $initState = $post['initState'];
+            unset($post['initState']);
             $this->storage->update('page_categories',$post, ['id' => $id]);
             $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
+            //if parent has changed then reorganize folder structure
+            if($initParentId !== $post['parentId']){
+                //TODO : delete cache of pages or move directories
+            }
+            //if slug has changed then rename the old folder
+            if($initSlug !== $post['slug']){
+                //TODO : rename category folder according to new slug
+            }
+            //if state has changed then update state for all subcategories and also for all respective pages
+            if($initState !== $post['state']){
+                //TODO : maybe with trigger
+            }
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
         }
         
         $entity = $this->storage->fetch('page_categories',$id);
-        // var_dump($entity);exit();
         $data['page_category'] = $entity;
+        $data['page_category_parents'] = $this->storage->parents('page_categories',$id);
         return new HtmlResponse($this->template->render('page/category::edit', $data));
     }
     

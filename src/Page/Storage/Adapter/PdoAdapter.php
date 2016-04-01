@@ -151,7 +151,7 @@ class PdoAdapter implements StorageInterface
     
     public function pageBySlug($page)
     {
-        $q = '  SELECT pages.*, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
+        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
                 FROM pages
                 INNER JOIN page_templates 
                     ON pages.templateId = page_templates.id
@@ -166,9 +166,46 @@ class PdoAdapter implements StorageInterface
         return $select;
     }
     
+    public function pageById($page)
+    {
+        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
+                FROM pages
+                INNER JOIN page_templates 
+                    ON pages.templateId = page_templates.id
+                WHERE 
+                    pages.state = 1
+                    AND pages.id = :id';
+        $select = $this->query($q, [':id' => $page]);
+        if($select){
+            $select = $select->fetch(\PDO::FETCH_ASSOC);
+        }
+        
+        return $select;
+    }
+    
+    public function fetchAllPages(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
+    {
+        // TODO: [SECURITY] - prepare statement for where
+        if(!empty($Where)){
+            $where = implode(' AND ', array_map(
+               function ($k, $v) { return "$k = $v"; },
+               array_keys($Where),
+               array_values($Where)
+            ));
+            $where = 'WHERE '. $where;
+        }else{
+            $where = '';
+        }
+        
+        $select = "SELECT pages.*, pagePathByCategoryId(pages.categoryid) AS path FROM pages $where ORDER BY $OrderBy LIMIT :offset, :limit";
+        // echo $select,"\n";exit(__FILE__.'::'.__LINE__);
+        $count  = "SELECT COUNT(id) FROM pages $where";
+        return $this->preparePaginator($select, $count);
+    }
+    
     public function parents($Name, $Id = -1)
     {
-        return $this->query("select * from $Name where id != :id", [':id' => $Id]);
+        return $this->query("select * from $Name where id != :id1 and parentId < :id2", [':id1' => $Id,':id2' => $Id]);
     }
     
     private function query($Query, array $Params = [])

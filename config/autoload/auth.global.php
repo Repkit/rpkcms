@@ -6,7 +6,11 @@ return [
     'auth' => [
         'authorize' => [
             'middleware' => [
-                'Page\Action\PageAction' => ['admin']
+                'Page\Action\PageAction' => ['admin'],
+                'Page\Action\TemplateAction' => ['admin'],
+                'Page\Action\CategoryAction' => ['admin'],
+                'Auth\Action\RoleAction' => ['admin'],
+                'Auth\Action\UserAction' => ['admin']
             ],
             'route' => [
                 // 'admin.page' => ['admin']
