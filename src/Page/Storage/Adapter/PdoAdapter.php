@@ -203,12 +203,22 @@ class PdoAdapter implements StorageInterface
         return $this->preparePaginator($select, $count);
     }
     
+    public function getPageCateoryPathById($Id)
+    {
+        $select  = $this->query("SELECT  `pagePathByCategoryId` ($Id) AS  `path` ; ");
+        if($select){
+            $select = $select->fetch(\PDO::FETCH_ASSOC);
+        }
+        
+        return $select;
+    }
+    
     public function parents($Name, $Id = -1)
     {
         return $this->query("select * from $Name where id != :id1 and parentId < :id2", [':id1' => $Id,':id2' => $Id]);
     }
     
-    private function query($Query, array $Params = [])
+    public function query($Query, array $Params = [])
     {
         $query = $this->pdo->prepare($Query);
         if (! $query->execute($Params)) {

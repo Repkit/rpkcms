@@ -72,7 +72,7 @@ class CategoryAction
             }
         }
         
-        $data['page_category_parents'] = $this->storage->parents('page_categories');
+        $data['page_category_parents'] = $this->storage->fetchAll('page_categories',[]);
         return new HtmlResponse($this->template->render('page/category::add', $data));
     }
     
@@ -83,6 +83,7 @@ class CategoryAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
             // init parent
             $initParentId = $post['initParentId'];
             unset($post['initParentId']);
@@ -94,17 +95,18 @@ class CategoryAction
             unset($post['initState']);
             $this->storage->update('page_categories',$post, ['id' => $id]);
             $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);
-            //if parent has changed then reorganize folder structure
-            if($initParentId !== $post['parentId']){
-                //TODO : delete cache of pages or move directories
-            }
-            //if slug has changed then rename the old folder
-            if($initSlug !== $post['slug']){
-                //TODO : rename category folder according to new slug
-            }
+            
             //if state has changed then update state for all subcategories and also for all respective pages
+            // this has higher priority that parent or slug
             if($initState !== $post['state']){
-                //TODO : maybe with trigger
+                //TODO [IMPROVEMENT]: maybe with trigger
+            }elseif($initParentId !== $post['parentId']){
+                //if parent has changed then reorganize folder structure
+                $this->changeParent($initParentId, $post['parentId'], $initSlug, $post['slug']);
+            }elseif($initSlug !== $post['slug']){
+                //if slug has changed then rename the old folder
+                //here we are assuming that we use mv unix commad to rename also
+                $this->changeParent($initParentId, $post['parentId'], $initSlug, $post['slug']);
             }
             return $Response
                 ->withStatus(302)
@@ -115,6 +117,58 @@ class CategoryAction
         $data['page_category'] = $entity;
         $data['page_category_parents'] = $this->storage->parents('page_categories',$id);
         return new HtmlResponse($this->template->render('page/category::edit', $data));
+    }
+    
+    //TODO [IMPROVEMENT]: move to cache service
+    private function changeParent($OldParentId, $NewParentId, $OldNme, $NewName)
+    {
+        try{
+            $oldid = intval($OldParentId);
+            $newid = intval($NewParentId);
+            if(empty($oldid) || empty($newid)){
+                throw \Exception ('empty data!');
+            }
+            $cachepath = getcwd().'/public/data/cache/html';
+            
+            // determine old path
+            $oldpath = $this->storage->getPageCateoryPathById($oldid);
+            // var_dump($oldpath);exit(__FILE__.'::'.__LINE__);
+            if($oldpath){
+                // determine new path
+                if($oldid === $newid){
+                    $newpath = $oldpath;
+                }else{
+                    $newpath = $this->storage->getPageCateoryPathById($newid);
+                }
+                $oldpath = $cachepath.$oldpath['path'].DIRECTORY_SEPARATOR.$OldNme;
+                $newpath = $cachepath.$newpath['path'].DIRECTORY_SEPARATOR.$NewName;
+            }else{
+                throw \Exception ('could not determine old path!');
+            }
+            
+            if($newpath){
+                // var_dump("mv $oldpath $newpath");exit(__FILE__.'::'.__LINE__);
+                exec("mv $oldpath $newpath");
+                // $ok = file_exists($newpath);
+                $ok = true; //fake use file_exists($newpath); for real status
+            }else{
+                $ok = false;
+            }
+            
+            if(!$ok){
+                // if move directory failed then delete old one as 
+                // the new one will be generated when first file will be requested
+                exec("rm -rf $oldpath");
+                // $ok = !file_exists($oldpath);
+                $ok = true; //fake use !file_exists($oldpath); for real status
+            }
+            
+            return $ok;
+            
+        }catch(\Exception $e){
+            return false;
+        }
+        
     }
     
 }
