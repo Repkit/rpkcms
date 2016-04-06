@@ -151,7 +151,7 @@ class PdoAdapter implements StorageInterface
     
     public function pageBySlug($page)
     {
-        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
+        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as `page_templates.path` , page_templates.name as `page_templates.name` 
                 FROM pages
                 INNER JOIN page_templates 
                     ON pages.templateId = page_templates.id
@@ -168,7 +168,7 @@ class PdoAdapter implements StorageInterface
     
     public function pageById($page)
     {
-        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as \'page_templates.path\' , page_templates.name as \'page_templates.name\' 
+        $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as `page_templates.path` , page_templates.name as `page_templates.name` 
                 FROM pages
                 INNER JOIN page_templates 
                     ON pages.templateId = page_templates.id

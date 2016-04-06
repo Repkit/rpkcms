@@ -77,6 +77,7 @@ class ModuleConfig
                         //'unix_socket' => 'path/to/unix',
                         // 'host'        => 'localhost(127.0.0.1)',
                         'host'        => 'localhost',
+                        // 'port'        => 3306,
                         'username'    => 'root',
                         'password'    => '',
                         'dbname'      => 'rpkcms',

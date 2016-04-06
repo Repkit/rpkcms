@@ -26,6 +26,7 @@ class PdoFactory
             $username    = !empty($config["username"]) ? $config["username"] : null;
             $dsncfg = [
                 "host"          => !empty($config["host"]) ? $config["host"] : null,
+                "port"          => !empty($config["port"]) ? $config["port"] : 3306,
                 "unix_socket"   => !empty($config["unix_socket"]) ? $config["unix_socket"] : null,
                 "dbname"        => !empty($config["dbname"]) ? $config["dbname"] : null,
             ];
