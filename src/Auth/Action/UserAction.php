@@ -52,6 +52,12 @@ class UserAction
         // $data['pages'] = iterator_to_array($pages->getItemsByPage($page));
         $data['users'] = iterator_to_array($entities->getCurrentItems());
         
+        // pagination data
+        $data['pagination'] = [];
+        $data['pagination']['page'] = $pagdata['page'];
+        $data['pagination']['size'] = $pagdata['size'];
+        $data['pagination']['count'] = $cnt;
+        
         // return new JsonResponse($data);
         return new HtmlResponse($this->template->render('user::list', $data));
         // return new HtmlResponse($this->template->render('page::category-list', $data));

@@ -30,6 +30,8 @@ $unit=array('b','kb','mb','gb','tb','pb');
 $m = @round($size/pow(1024,($i=floor(log($size,1024)))),2);
 $m1 = @round($size1/pow(1024,($i)),2);
 $u = $unit[$i];
-($t>0.1 || $m>2)?$c='red':$c='green';
-// echo '<hr><div style="background:',$c,'; color:white;">',$m,'(',$m1,')',$u,' -- ', $t,'(',$t1,')s</div>';
+// ($t>0.1 || $m>2)?$c='red':$c='green';
+($t>0.1)?$ct='red':$ct='green';
+($m>2)?$cm='red':$cm='green';
+echo '<hr><div style="color:white;"><span style="background:',$cm,';">',$m,'(',$m1,')',$u,'</span> -- <span style="background:',$ct,';">', $t,'(',$t1,')s</span></div>';
 //benchmark end

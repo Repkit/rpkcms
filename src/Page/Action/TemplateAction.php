@@ -51,6 +51,12 @@ class TemplateAction
 
         $data['page_templates'] = iterator_to_array($entities->getCurrentItems());
         
+        // pagination data
+        $data['pagination'] = [];
+        $data['pagination']['page'] = $pagdata['page'];
+        $data['pagination']['size'] = $pagdata['size'];
+        $data['pagination']['count'] = $cnt;
+        
         // return new JsonResponse($data);
         return new HtmlResponse($this->template->render('page/template::list', $data));
         // return new HtmlResponse($this->template->render('page::category-list', $data));

@@ -56,6 +56,12 @@ class PageAction
         // $data['pages'] = iterator_to_array($pages->getItemsByPage($page));
         $data['pages'] = iterator_to_array($entities->getCurrentItems());
         
+        // pagination data
+        $data['pagination'] = [];
+        $data['pagination']['page'] = $pagdata['page'];
+        $data['pagination']['size'] = $pagdata['size'];
+        $data['pagination']['count'] = $cnt;
+        
         // return new JsonResponse($data);
         return new HtmlResponse($this->template->render('page::list', $data));
         
@@ -77,8 +83,8 @@ class PageAction
         }
         
         $data['page_templates'] = $this->storage->fetchAll('page_templates');
-        // $data['page_parents'] = $this->storage->fetchAll('pages',[]);
-        $data['page_parents'] = $this->storage->parents('pages');
+        $data['page_parents'] = $this->storage->fetchAll('pages',[]);
+        // $data['page_parents'] = $this->storage->parents('pages');
         $data['page_categories'] = $this->storage->fetchAll('page_categories',[]);
         $data['user_roles'] = $this->storage->fetchAll('user_roles',[]);
         $data['page_statuses'] = $this->storage->fetchAll('page_statuses');
@@ -124,6 +130,33 @@ class PageAction
         $data['page_meta_tags'] = $this->storage->fetchAll('page_meta_tags',['pageId'=>$id]);
         
         return new HtmlResponse($this->template->render('page::edit', $data));
+    }
+    
+    public function previewAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
+    {
+        // if not post just continue
+        if ('POST' !== $Request->getMethod()) {
+            return $Next($Request,$Response);
+        }
+        
+        $data = [];
+        $post = $Request->getParsedBody();
+        // var_dump($post);exit(__FILE__.'::'.__LINE__);
+        
+        $pagedb = $this->storage->pageBySlug($post['slug']);
+        // if the template changed then get path of the new template
+        if($pagedb['templateId'] !== $post['templateId']){
+            $templatedb = $this->storage->fetch('page_templates',$post['templateId']);
+            $post['page_templates.path'] = $templatedb['path'];
+            $post['page_templates.name'] = $templatedb['name'];
+        }
+        $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$post);
+        
+        // copy-paste from CacheAction
+        //TODO [IMPROVEMENT]: avoid code duplication from CacheAction
+        $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
+        
+        return new HtmlResponse($content);
     }
     
 }

@@ -15,7 +15,7 @@
     {% endfor %}
 {% endif %}
 
-<form method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
+<form id="form" method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
     
     <input type="hidden" name="id" id="page_id" value="{{page.id}}" required>
     {#slug#}
@@ -115,7 +115,8 @@
         </select>
     </div>
   
-    <button type="submit" class="btn btn-default">Submit</button>
+    <button type="submit" class="btn btn-success">Submit</button>
+    <button id="preview" type="button" class="btn btn-warning">Preview</button>
 </form>
 
 {#<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>#}
@@ -141,6 +142,13 @@ function processForm() {
 <script>
     $('#page_content').summernote({
 		height: "210px"
+	});
+	
+	$('#preview').click(function(event){
+	    event.preventDefault();
+	    $('#form').attr('target','_blank');
+	    $('#form').attr('action','{{ url('admin.page', {'action': 'preview'}) }}');
+	    $('#form').submit();
 	});
 </script>
 {% endblock %}

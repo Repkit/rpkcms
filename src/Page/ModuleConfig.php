@@ -38,7 +38,7 @@ class ModuleConfig
                 ],
                 'admin-page' => [
                     'name' => 'admin.page',
-                    'path' => '/admin/page[/{action:add|edit}[/{id}]]',
+                    'path' => '/admin/page[/{action:add|edit|preview}[/{id}]]',
                     'middleware' => Action\PageAction::class,
                     'allowed_methods' => ['GET','POST'],
                 ],
