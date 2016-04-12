@@ -139,10 +139,11 @@ class TemplateAction
             
             // delete cache of the pages that use this template
             // TODO [PERFORMANCE]: query only for slug column
-            $pages = $this->storage->parents('pages',['templateId'=>$id]);
+            $pages = $this->storage->fetchAllPages(['templateId'=>$id]);
             $cachepath = getcwd().'/public/data/cache/html/';
             foreach($pages as $page){
-                $file = $cachepath.$page['slug'].'.html';
+                // $file = $cachepath.$page['slug'].'.html';
+                $file = $cachepath. $page['path'].'/'.$page['slug'].'.html';
                 if(file_exists($file)){
                      unlink(realpath($file));
                 }
