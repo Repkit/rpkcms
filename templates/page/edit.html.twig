@@ -149,6 +149,7 @@ function processForm() {
 	    $('#form').attr('target','_blank');
 	    $('#form').attr('action','{{ url('admin.page', {'action': 'preview'}) }}');
 	    $('#form').submit();
+	    $('#form').attr('action','{{ url('admin.page', {'action': 'edit'}) }}').attr('target','_self');
 	});
 </script>
 {% endblock %}

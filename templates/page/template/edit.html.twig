@@ -27,6 +27,9 @@
         <label for="template_content">Content</label>
         <div class="form-control" id="template_content" style="height: 210px;">{{page_template.content}}</div>
         <textarea id="template_content_hidden" class="form-control hide" name="content" rows="3"></textarea>
+        <a href="javascript:fullscreen();" style="float: right;margin-top: -19px;margin-right: 1px;">
+            <span id="fullscreen" class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+        </a>
     </div>
     
     <div class="form-group">
@@ -42,7 +45,7 @@
         </select>
     </div>
   
-    <button type="submit" class="btn btn-default">Submit</button>
+    <button type="submit" class="btn btn-success">Submit</button>
 </form>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
@@ -56,6 +59,47 @@
 function processForm() {
     document.getElementById("template_content_hidden").value = editor.getSession().getValue();
 }
+function fullscreen(){
+    var i = document.getElementById("template_content");
+    i.dataset.height = i.style.height;
+    i.dataset.width = i.style.width;
+    i.style.height = window.innerHeight+'px';
+    i.style.width = window.innerWidth+'px';
+    editor.resize();
+    
+    function fullscreenchange(){
+        if (
+        	document.fullscreenElement ||
+        	document.webkitFullscreenElement ||
+        	document.mozFullScreenElement ||
+        	document.msFullscreenElement
+        ) {
+            //console.log('fullscreen');
+        }else{
+            var i = document.getElementById("template_content");
+            i.style.height = i.dataset.height;
+            i.style.width = i.dataset.width;
+            editor.resize();
+        }
+    }
+
+    // go full-screen
+    if (i.requestFullscreen) {
+    	i.requestFullscreen();
+    	document.addEventListener("fullscreenchange", fullscreenchange);
+    } else if (i.webkitRequestFullscreen) {
+    	i.webkitRequestFullscreen();
+    	document.addEventListener("webkitfullscreenchange", fullscreenchange);
+    } else if (i.mozRequestFullScreen) {
+    	i.mozRequestFullScreen();
+    	document.addEventListener("mozfullscreenchange", fullscreenchange);
+    } else if (i.msRequestFullscreen) {
+    	i.msRequestFullscreen();
+    	document.addEventListener("MSFullscreenChange", fullscreenchange);
+    }
+    
+}
+
 </script>
 
 {% endblock %}

@@ -4,7 +4,12 @@
 
 {% block content %}
 <h1>Post - theme coco</h1>
-{% autoescape %}
-    {{ content|raw }}
-{% endautoescape %}
+{#{% autoescape %}#}
+{#    {{ content | raw }}#}
+{#{% endautoescape %}#}
+{#{{ include(template_from_string(content)) }}#}
+{% set pages = pages() %}
+{% for page in pages %}
+    <li>{{ page.slug}} - {% autoescape false%}{{page.description | raw }}{% endautoescape %}</li>
+{% endfor %}
 {% endblock %}

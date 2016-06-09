@@ -19,6 +19,8 @@ class ModuleConfig
                         Action\CategoryFactory::class,
                     Action\TemplateAction::class =>
                         Action\TemplateFactory::class,
+                    TwigExtension::class =>
+                        TwigExtensionFactory::class,    
                 ],
             ],
             //middleware for sub directories that are not caught by home route
@@ -84,6 +86,12 @@ class ModuleConfig
                 ],
                 'cache' => [
                     'path' => getcwd().'/public/data/cache/html/',
+                ],
+            ],
+            'twig' => [
+                'extensions'     => [
+                    TwigExtension::class,
+                    new \Twig_Extension_StringLoader(),
                 ],
             ],
         ];

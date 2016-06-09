@@ -4,5 +4,7 @@
 
 {% block content %}
 <h1>Page - theme COCO</h1>
-{{content}}
+{% autoescape %}
+    {{ content|raw }}
+{% endautoescape %}
 {% endblock %}
