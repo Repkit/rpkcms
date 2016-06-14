@@ -2,6 +2,13 @@
 
 {% block title %}by-mistake.com{% endblock %}
 
+{% block metadata %}
+{% for meta_tag in page_meta_tags %}
+    <meta {% autoescape false%}{{meta_tag.value | raw }}{% endautoescape %} >
+    
+{% endfor %}
+{% endblock %}
+
 {% block content %}
 <h1>Page - theme COCO</h1>
 {% autoescape %}

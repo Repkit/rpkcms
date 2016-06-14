@@ -72,9 +72,62 @@ class PageAction
         $data = [];
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
             unset($post['files']);
+            
+            // meta data
+            // TODO [IMPROVEMENT]: maybe use a separate middleware that will handle page meta as there are different tables
+            //                      use hydrator and put in request parsedBody the inserted id and return next not response
+            //                      so the page_meta middleware get in action and save data using his hydrator
+            if(isset($post['meta'])){
+                $meta = $post['meta'];
+                unset($post['meta']);
+            }
+            
+            // meta_tags data
+            if(isset($post['meta_tags'])){
+                $meta_tags = $post['meta_tags'];
+                unset($post['meta_tags']);
+            }
+            
+            // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
             $id = $this->storage->insert('pages',$post);
             if(!empty($id)){
+                
+                $authorId = !empty($post['authorId'])?$post['authorId']:1;
+                
+                // persist meta
+                if(!empty($meta) && is_array($meta) && !empty($meta['key']) 
+                    && !empty($meta['value']) && count($meta['key']) == count($meta['value'])){
+                        
+                    foreach($meta['key'] as $idx => $key){
+                        $metadata = [
+                            'pageId' => $id, 
+                            'metaKey' => $key, 
+                            'metaValue' => $meta['value'][$idx],
+                            'creationDate' => date('Y-m-d H:i:s'),
+                            'authorId' => $authorId
+                        ];
+                        
+                        $this->storage->insert('page_meta',$metadata);
+                    }
+                }
+                
+                // persist meta_tags
+                if(!empty($meta_tags) && is_array($meta_tags) && !empty($meta_tags['value'])){
+                        
+                    foreach($meta_tags['value'] as $idx => $value){
+                        $metatagsdata = [
+                            'pageId' => $id, 
+                            'value' => $value, 
+                            'creationDate' => date('Y-m-d H:i:s'),
+                            'authorId' => $authorId
+                        ];
+                        
+                        $this->storage->insert('page_meta_tags',$metatagsdata);
+                    }
+                }
+                
                 $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
                 return $Response
                     ->withStatus(302)
@@ -98,8 +151,67 @@ class PageAction
         $id = $Request->getAttribute('id', false);
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
+            // var_dump($post);exit(__FILE__.'::'.__LINE__);
             unset($post['files']);
+            
+            // meta data
+            // TODO [IMPROVEMENT]: maybe use a separate middleware that will handle page meta as there are different tables
+            //                      use hydrator and put in request parsedBody the inserted id and return next not response
+            //                      so the page_meta middleware get in action and save data using his hydrator
+            if(isset($post['meta'])){
+                $meta = $post['meta'];
+                unset($post['meta']);
+            }
+            
+            // meta_tags data
+            if(isset($post['meta_tags'])){
+                $meta_tags = $post['meta_tags'];
+                unset($post['meta_tags']);
+            }
+            
             $this->storage->update('pages',$post, ['id' => $id]);
+            
+            // update page meta
+            $this->storage->delete('page_meta', ['pageId' => $id]);
+            
+            // update page meta tags
+            // note: we don't implement onchange flag strategy in template because is tricky for copy-pasting in textarea
+            $this->storage->delete('page_meta_tags', ['pageId' => $id]);
+            
+            $authorId = !empty($post['authorId'])?$post['authorId']:1;
+            
+            // persist meta
+            if(!empty($meta) && is_array($meta) && !empty($meta['key']) 
+                && !empty($meta['value']) && count($meta['key']) == count($meta['value'])){
+                    
+                foreach($meta['key'] as $idx => $key){
+                    $metadata = [
+                        'pageId' => $id, 
+                        'metaKey' => $key, 
+                        'metaValue' => $meta['value'][$idx],
+                        'creationDate' => date('Y-m-d H:i:s'),
+                        'authorId' => $authorId
+                    ];
+                    
+                    $this->storage->insert('page_meta',$metadata);
+                }
+            }
+            
+            // persist meta_tags
+            if(!empty($meta_tags) && is_array($meta_tags) && !empty($meta_tags['value'])){
+                    
+                foreach($meta_tags['value'] as $idx => $value){
+                    $metatagsdata = [
+                        'pageId' => $id, 
+                        'value' => $value, 
+                        'creationDate' => date('Y-m-d H:i:s'),
+                        'authorId' => $authorId
+                    ];
+                    
+                    $this->storage->insert('page_meta_tags',$metatagsdata);
+                }
+            }
+            
             $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
             
             // delete cached file

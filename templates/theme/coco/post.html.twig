@@ -10,6 +10,6 @@
 {#{{ include(template_from_string(content)) }}#}
 {% set pages = pages() %}
 {% for page in pages %}
-    <li>{{ page.slug}} - {% autoescape false%}{{page.description | raw }}{% endautoescape %}</li>
+    <li>{{ page.slug}} - {% autoescape false%}{{page.thumbnail | raw }}{% endautoescape %}</li>
 {% endfor %}
 {% endblock %}

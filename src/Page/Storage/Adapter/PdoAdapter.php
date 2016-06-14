@@ -149,6 +149,24 @@ class PdoAdapter implements StorageInterface
 		return $update->rowCount();
     }
     
+    public function delete($Name, array $Where)
+    {
+        //generating where condition
+		// TODO: [SECURITY] - prepare statement for where
+        $where = implode(' AND ', array_map(
+           function ($k, $v) { return "$k = $v"; },
+           array_keys($Where),
+           array_values($Where)
+        ));
+        
+        $delete = $this->pdo->prepare("DELETE from $Name WHERE $where");
+        if (! $delete->execute()) {
+            return false;
+        }
+        
+        return true;
+    }
+    
     public function pageBySlug($page)
     {
         $q = '  SELECT pages.*, pagePathByCategoryId(pages.categoryid) as path, page_templates.path as `page_templates.path` , page_templates.name as `page_templates.name` 
@@ -183,7 +201,7 @@ class PdoAdapter implements StorageInterface
         return $select;
     }
     
-    public function fetchAllPages(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
+    public function fetchAllPages_deprecated(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
         // TODO: [SECURITY] - prepare statement for where
         if(!empty($Where)){
@@ -201,6 +219,28 @@ class PdoAdapter implements StorageInterface
         // echo $select,"\n";exit(__FILE__.'::'.__LINE__);
         $count  = "SELECT COUNT(id) FROM pages $where";
         return $this->preparePaginator($select, $count);
+    }
+    
+    public function fetchAllPages(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
+    {
+        // TODO: [SECURITY] - prepare statement for where
+        if(!empty($Where)){
+            $where = implode(' AND ', array_map(
+               function ($k, $v) { return "$k = $v"; },
+               array_keys($Where),
+               array_values($Where)
+            ));
+            $where = 'WHERE '. $where;
+        }else{
+            $where = '';
+        }
+        
+        $select = "CALL `fetchAllPages` (:where, :orderby, :offset, :limit); ";
+        $count  = "SELECT COUNT(id) FROM pages $where";
+        
+        $params = [':where' => $where, ':orderby' => $OrderBy];
+                
+        return $this->preparePaginator($select, $count, $params);
     }
     
     public function getPageCateoryPathById($Id)

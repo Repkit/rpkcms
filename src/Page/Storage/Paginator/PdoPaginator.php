@@ -38,7 +38,9 @@ class PdoPaginator extends AbstractPaginator implements AdapterInterface
 
     public function count()
     {
-        $result = $this->count->execute($this->params);
+        /* we don't need params for geting count */
+        // $result = $this->count->execute($this->params);
+        $result = $this->count->execute();
         if (! $result) {
             throw new StorageException('Failed to fetch count from database');
         }

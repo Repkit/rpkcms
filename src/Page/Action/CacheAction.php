@@ -58,7 +58,7 @@ class CacheAction
             // var_dump($page);exit(__FILE__.'::'.__LINE__);
     
             $data['page'] = $page;
-            $data['language'] = date('Y-m-d H:i:s');
+            // $data['language'] = date('Y-m-d H:i:s');
             
             // $file = getcwd().'/data/cache/html/'.$lang.'_'.$page.'.html';
             // TODO [IMPROVEMENT]: get from config or pass responsability to a service
@@ -72,10 +72,16 @@ class CacheAction
                 if(false == $pagedb){
                     throw new StorageException('Page not found');
                 }
+                
+                // load page extra info
+                $data['page_meta'] = $this->storage->fetchAll('page_meta',['pageId'=>$pagedb['id']]);
+                $data['page_meta_tags'] = $this->storage->fetchAll('page_meta_tags',['pageId'=>$pagedb['id']]);
+                
                 $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$data);
-                // var_dump($pagedb['content']);exit();
+                // var_dump($pagedb['content']);exit(__FILE__.'::'.__LINE__);
                 // $content = file_get_contents(getcwd().'/data/cache/html/en_test.html');
                 $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
+                // var_dump($content);exit(__FILE__.'::'.__LINE__);
                 $pagename = '/'.$pagedb['slug'].'.html';
                 $pagedir = $cachepath . $pagedb['path'];
                 if (!is_dir($pagedir)) {
@@ -96,7 +102,7 @@ class CacheAction
             return $this->redirect($path, $url, $Response);
             
         }catch(\Exception $e){
-            // var_dump($e->getMessage());exit();
+            var_dump($e->getMessage());exit();
             return $Next($Request,$Response);
         }
     }

@@ -15,104 +15,174 @@
     {% endfor %}
 {% endif %}
 
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#page-tab" data-toggle="tab">Page definition </a></li>
+    <li><a href="#page-meta-tab" data-toggle="tab">Extend </a></li>
+    <li><a href="#page-meta-tags-tab" data-toggle="tab">Metadata </a></li>
+</ul>
+
 <form id="form" method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
     
     <input type="hidden" name="id" id="page_id" value="{{page.id}}" required>
-    {#slug#}
-    <div class="form-group">
-        <label for="page_slug">Slug</label>
-        <input id="page_slug" type="text" name="slug" class="form-control" value="{{page.slug}}" placeholder="slug" required  pattern="^[a-z0-9-]+$">
-    </div>
     
-    {#title#}
-    <div class="form-group">
-        <label for="page_tite">Title</label>
-        <input id="page_tite" type="text" name="title" class="form-control" value="{{page.title}}" placeholder="title" required>
-    </div>
-    
-    {#description#}
-    <div class="form-group">
-        <label for="page_description">Description</label>
-        <textarea id="page_description" class="form-control" name="description" rows="3">{{page.description}}</textarea>
-    </div>
-    
-    {#content#}
-    <div class="form-group">
-        <label for="page_content">Content</label>
-        <div id="page_content" class="form-control">{{page.content |raw}}</div>
-        <textarea id="page_content_hidden" class="hide" name="content" rows="3"></textarea>
-    </div>
-    
-    {#tempalte#}
-    <div class="form-group">
-        <label for="page_templates">Template</label>
-        <select id="page_templates" class="form-control" name="templateId" required>
-            {% for idx,template in page_templates %}
-                <option value="{{ template.id }}" {{  page.templateId == template.id ? ' selected ' : '' }}>{{ template.name }} - [{{ template.path }}]</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    {#parent#}
-    <div class="form-group">
-        <label for="page_parents">Parent</label>
-        <select id="page_parents" class="form-control" name="parentId">
-            <option value="">None</option>
-            {% for idx, parent in page_parents %}
-                <option value="{{ parent.id }}" {{  page.parentId == parent.id ? ' selected ' : '' }}>{{ parent.title }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    {#category#}
-    <div class="form-group">
-        <label for="page_categories">Category</label>
-        <select id="page_categories" class="form-control" name="categoryId">
-            <option value="0">None</option>
-            {% for idx, category in page_categories %}
-                <option value="{{ category.id }}" {{  page.categoryId == category.id ? ' selected ' : '' }}>{{ category.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    {#access#}
-    <div class="form-group">
-        <label for="user_roles">Access</label>
-        <select id="user_roles" class="form-control" name="roleId">
-            {% for idx, role in user_roles %}
-                <option value="{{ role.id }}" {{  page.roleId == role.id ? ' selected ' : '' }}>{{ role.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    {#priority#}
-    <div class="form-group">
-        <label for="page_priority">Priority</label>
-        <input id="page_priority" type="number" name="priority" class="form-control" value="{{page.priority}}" placeholder="priority" required pattern="^[0-9]+$">
-    </div>
-    
-    {#status#}
-    <div class="form-group">
-        <label for="page_status">Status</label>
-        <select id="page_status" class="form-control" name="statusId">
-            {% for idx, status in page_statuses %}
-                <option value="{{ status.id }}" {{  page.statusId == status.id ? ' selected ' : '' }}>{{ status.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    
-    {#state#}
-    <div class="form-group">
-        <label for="page_state">State</label>
-        <select id="page_state" class="form-control" name="state">
-          {% if page.state %}
-          <option value="1" selected>Active</option>
-          <option value="0">Inactive</option>
-          {% else %}
-          <option value="1">Active</option>
-          <option value="0" selected>Inactive</option>
-          {% endif %}
-        </select>
+    <div class="tab-content">
+        
+        {#page#}
+        <div class="tab-pane active" id="page-tab">
+            
+            {#slug#}
+            <div class="form-group">
+                <label for="page_slug">Slug</label>
+                <input id="page_slug" type="text" name="slug" class="form-control" value="{{page.slug}}" placeholder="slug" required  pattern="^[a-z0-9-]+$">
+            </div>
+            
+            {#title#}
+            <div class="form-group">
+                <label for="page_tite">Title</label>
+                <input id="page_tite" type="text" name="title" class="form-control" value="{{page.title}}" placeholder="title" required>
+            </div>
+            
+            {#description#}
+            <div class="form-group">
+                <label for="page_description">Description</label>
+                <textarea id="page_description" class="form-control" name="description" rows="3">{{page.description}}</textarea>
+            </div>
+            
+            {#content#}
+            <div class="form-group">
+                <label for="page_content">Content</label>
+                <div id="page_content" class="form-control">{{page.content |raw}}</div>
+                <textarea id="page_content_hidden" class="hide" name="content" rows="3"></textarea>
+            </div>
+            
+            {#tempalte#}
+            <div class="form-group">
+                <label for="page_templates">Template</label>
+                <select id="page_templates" class="form-control" name="templateId" required>
+                    {% for idx,template in page_templates %}
+                        <option value="{{ template.id }}" {{  page.templateId == template.id ? ' selected ' : '' }}>{{ template.name }} - [{{ template.path }}]</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {#parent#}
+            <div class="form-group">
+                <label for="page_parents">Parent</label>
+                <select id="page_parents" class="form-control" name="parentId">
+                    <option value="">None</option>
+                    {% for idx, parent in page_parents %}
+                        <option value="{{ parent.id }}" {{  page.parentId == parent.id ? ' selected ' : '' }}>{{ parent.title }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {#category#}
+            <div class="form-group">
+                <label for="page_categories">Category</label>
+                <select id="page_categories" class="form-control" name="categoryId">
+                    <option value="0">None</option>
+                    {% for idx, category in page_categories %}
+                        <option value="{{ category.id }}" {{  page.categoryId == category.id ? ' selected ' : '' }}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {#access#}
+            <div class="form-group">
+                <label for="user_roles">Access</label>
+                <select id="user_roles" class="form-control" name="roleId">
+                    {% for idx, role in user_roles %}
+                        <option value="{{ role.id }}" {{  page.roleId == role.id ? ' selected ' : '' }}>{{ role.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {#priority#}
+            <div class="form-group">
+                <label for="page_priority">Priority</label>
+                <input id="page_priority" type="number" name="priority" class="form-control" value="{{page.priority}}" placeholder="priority" required pattern="^[0-9]+$">
+            </div>
+            
+            {#status#}
+            <div class="form-group">
+                <label for="page_status">Status</label>
+                <select id="page_status" class="form-control" name="statusId">
+                    {% for idx, status in page_statuses %}
+                        <option value="{{ status.id }}" {{  page.statusId == status.id ? ' selected ' : '' }}>{{ status.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            {#state#}
+            <div class="form-group">
+                <label for="page_state">State</label>
+                <select id="page_state" class="form-control" name="state">
+                  {% if page.state %}
+                  <option value="1" selected>Active</option>
+                  <option value="0">Inactive</option>
+                  {% else %}
+                  <option value="1">Active</option>
+                  <option value="0" selected>Inactive</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+        </div>
+        
+        {#page-meta#}
+        <div class="tab-pane" id="page-meta-tab">
+            
+            <div id="dynamic-row">
+                
+                {% for idx, meta in page_meta %}
+                <div class="entry form-inline" style="padding: 10px 0px;">
+                    <div class="form-group">
+                        <div class="input-group">
+                            <div class="input-group-addon">{{idx}}</div>
+                            <input type="text" name="meta[key][]" class="form-control" placeholder="key" value="{{meta.metaKey}}" required  pattern="^[a-z0-9-_]+$">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <textarea name="meta[value][]" class="form-control" placeholder="value" rows="1" cols="50" required>{{meta.metaValue}}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-remove">
+                        <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-add">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                </div>
+                {% endfor %}
+                
+            </div>
+            
+        </div>
+        
+        {#page-meta-tags#}
+        <div class="tab-pane" id="page-meta-tags-tab">
+            <div class="alert alert-info" role="alert">
+                <i>for &#x3C;meta http-equiv=&#x22;refresh&#x22; content=&#x22;30&#x22;&#x3E; you should insert only http-equiv=&#x22;refresh&#x22; content=&#x22;30&#x22;</i>
+            </div>
+            <div id="dynamic-row-tags">
+                
+                {% for idx, meta_tag in page_meta_tags %}
+                <div class="entry-tags form-inline" style="padding: 10px 0px;">
+                    <div class="form-group">
+                        <textarea name="meta_tags[value][]" class="form-control" placeholder="value" rows="1" cols="110" required>{{meta_tag.value}}</textarea>
+                    </div>
+                    <button type="submit" class="btn btn-danger btn-remove-tags">
+                        <span class="glyphicon glyphicon-minus"></span>
+                    </button>
+                    <button type="submit" class="btn btn-primary btn-add-tags">
+                        <span class="glyphicon glyphicon-plus"></span>
+                    </button>
+                </div>
+                {% endfor %}
+                
+            </div>
+            
+        </div>
+        
     </div>
   
     <button type="submit" class="btn btn-success">Submit</button>
@@ -151,6 +221,57 @@ function processForm() {
 	    $('#form').submit();
 	    $('#form').attr('action','{{ url('admin.page', {'action': 'edit'}) }}').attr('target','_self');
 	});
+	
+	$(function() {   
+	    
+	   // page meta
+        var i=$('#dynamic-row').children('.input-group-addon').length;
+        $(document).on('click', '.btn-add', function(e) {
+            e.preventDefault();
+    
+            var controlForm  = $('#dynamic-row:first'),
+                currentEntry = $(this).parent('.entry:first'),
+                newEntry     = $(currentEntry.clone()).appendTo(controlForm);
+                
+            $(newEntry).find('.input-group-addon').html(++i);
+            newEntry.find('input').val('');
+            
+        }).on('click', '.btn-remove', function(e){   
+            i--;
+            $(this).parent().nextAll('.entry').each(function() {
+                $(this).find('.input-group-addon').html($(this).find('.input-group-addon').html()-1); 
+            });
+    		$(this).parents('.entry:first').remove();	
+    		
+    		e.preventDefault();
+    		return false;
+    	});
+    	
+    	// page meta tags
+    	var j=$('#dynamic-row-tags').children('.input-group-addon').length;
+        $(document).on('click', '.btn-add-tags', function(e) {
+            e.preventDefault();
+    
+            var controlForm  = $('#dynamic-row-tags:first'),
+                currentEntry = $(this).parent('.entry-tags:first'),
+                newEntry     = $(currentEntry.clone()).appendTo(controlForm);
+                
+            $(newEntry).find('.input-group-addon').html(++j);
+            newEntry.find('input').val('');
+            
+        }).on('click', '.btn-remove-tags', function(e){   
+            j--;
+            $(this).parent().nextAll('.entry-tags').each(function() {
+                $(this).find('.input-group-addon').html($(this).find('.input-group-addon').html()-1); 
+            });
+    		$(this).parents('.entry-tags:first').remove();	
+    		
+    		e.preventDefault();
+    		return false;
+    	});
+    });
+
+
 </script>
 {% endblock %}
 

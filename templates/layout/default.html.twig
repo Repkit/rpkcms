@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
+    
+    <title>{% block title %}{% endblock %} - zend-expressive</title>
+    
+    {% block metadata %}
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>{% block title %}{% endblock %} - zend-expressive</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {% endblock %}
+    
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
     <style>

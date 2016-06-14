@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <title>by-mistake.com - zend-expressive</title>
+    <title>{% block title %}{% endblock %} - zend-expressive</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" />
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css" />
@@ -31,7 +31,8 @@
             background-color: #A0B64E; 
         }
     </style>
-    </head>
+    {% block stylesheets %}{% endblock %}
+</head>
 <body class="app">
     <header class="app-header">
         <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
@@ -43,7 +44,7 @@
                         <span class="icon-bar"></span>
                     </button>
                     <a class="navbar-brand" href="/">
-                        <img src="/logo.png" alt="by-mistake" style="margin-top: -7px;"/>
+                        <img src="{{ asset('logo.png') }}" alt="by-mistake" style="margin-top: -7px;"/>
                     </a>
                 </div>
                 <div class="collapse navbar-collapse">
@@ -53,7 +54,8 @@
                                 <i class="fa fa-check-square"></i> by-mistake.com
                             </a>
                         </li>
-                                                <li class=" dropdown">
+                        {% if auth.user.info.name is defined %}
+                        <li class=" dropdown">
                             <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
                                 Pages
                                 <span class="caret"></span>
@@ -74,17 +76,27 @@
                                 <li><a href="/admin/auth/user">Users</a></li>
                             </ul>
                         </li>
-                                            </ul>
+                        {% endif %}
+                    </ul>
                     
                     <!--login menu-->
                     <ul class="nav navbar-nav pull-right">
-                                                <li class=" dropdown">
+                        {% if auth.user.info.name is defined %}
+                        <li class=" dropdown">
                             <a href="#" class="dropdown-toggle active" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                                Signed in as  repkit
-                                                            </a>
-                                                                                                                                        </li>
+                                Signed in as  {{ auth.user.info.name }}
+                                {#<span class="caret"></span>#}
+                            </a>
+                            {#<ul class="dropdown-menu">#}
+                            {#    <li><a href="#">Change Password</a></li>#}
+                            {#    <li><a href="#">My Profile</a></li>#}
+                            {#</ul>#}
+                        </li>
                         <li class=""><a href="/auth/logout">Logout</a></li>
-                                            </ul>
+                        {% else %}
+                        <li class=""><a href="/auth/google?redirect=/admin/page">Login with google</a></li>
+                        {% endif %}
+                    </ul>
                 </div>
             </div>
         </nav>
@@ -92,33 +104,23 @@
 
     <div class="app-content">
         <main class="container">
-            <h1>Post - theme coco</h1>
-    <li>index - first rpkcms page</li>
-    <li>home - a blog home page created through cms</li>
-    <li>blog - streaming tutorial about how to create a theme for the mighty cms rpkcms</li>
-    <li>about - about me and you toghether</li>
-    <li>contact - contact page</li>
-    <li>proxy-pattern - A proxy, in its most general form, is a class functioning as an interface to something else.</li>
-    <li>test - <div class="sticky-note-inner">
-<div class="embed-responsive embed-responsive-16by9">
-  <iframe class="embed-responsive-item" src="https://www.youtube.com/embed/M482RhQ8i1Q"></iframe>
-</div>
-        <p>To help yourself, you must be yourself. Be the best that you can be. When you make a <strong>mistake</strong>, learn from it, pick yourself up and move on.</p>
-        <span class="author">Dave Pelzer</span>
-      </div></li>
+            {% block content %}{% endblock %}
         </main>
     </div>
 
     <footer class="app-footer">
         <div class="container">
             <hr />
-                            <p>
-                    &copy; 2015 - 2016 by-mistake. All rights reserved.
+            {% block footer %}
+                <p>
+                    &copy; 2015 - {{ "now"|date("Y") }} by-mistake. All rights reserved.
                 </p>
-                    </div>
+            {% endblock %}
+        </div>
     </footer>
 
     <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    </body>
+    {% block javascript %}{% endblock %}
+</body>
 </html>

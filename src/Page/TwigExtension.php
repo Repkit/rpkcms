@@ -61,6 +61,26 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
         $entities->setItemCountPerPage($Size);
         $entities->setCurrentPageNumber($Page);
         
+        /*$sqlstr = "CALL `fetchAllPages` (:where, :orderby, :offset, :limit); ";
+        if(!empty($Where)){
+            $where = implode(' AND ', array_map(
+               function ($k, $v) { return "$k = $v"; },
+               array_keys($Where),
+               array_values($Where)
+            ));
+            $where = 'WHERE '. $where;
+        }else{
+            $where = '';
+        }
+        $params = [':where' => $where, ':orderby' => $OrderBy, ':offset' => 0, ':limit'  => 2];
+        
+        $select = $this->storage->query($sqlstr, $params);
+        // var_dump($select);exit(__FILE__.'::'.__LINE__);
+        
+        $entities = $select->fetchAll(\PDO::FETCH_ASSOC);*/
+        
+        // var_dump($entities);exit(__FILE__.'::'.__LINE__);
+
         return $entities;
     }
 }
