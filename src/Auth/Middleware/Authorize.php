@@ -26,7 +26,8 @@ class Authorize
         
         // authorize middleware
         $middleware = $match->getMatchedMiddleware();
-        if(!empty(($roles = $this->config['authorize']['middleware'][$middleware]))){
+        if(!empty($this->config['authorize']['middleware'][$middleware])){
+            $roles = $this->config['authorize']['middleware'][$middleware];
             // var_dump($roles);exit(__FILE__.'::'.__LINE__);
             if(empty(($user = $_SESSION['auth']['user'])) || !in_array($user['role'],$roles)){
                 return $next($req, $res->withStatus(403), 'This is a restricted area!');
@@ -35,7 +36,8 @@ class Authorize
         
         // route name authorization
         $route = $match->getMatchedRouteName();
-        if(!empty(($roles = $this->config['authorize']['route'][$route]))){
+        if(!empty($this->config['authorize']['route'][$route])){
+            $roles = $this->config['authorize']['route'][$route];
             if(empty(($user = $_SESSION['auth']['user'])) || $user['info']['email'] !== 'repkit@gmail.com'){
                 return $next($req, $res->withStatus(403), 'This is a restricted area!');
             }

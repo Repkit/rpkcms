@@ -22,8 +22,8 @@ class User
 
     public function __invoke($req, $res, $next)
     {
-        if(!empty(($user = $_SESSION['auth']['user'])) 
-            && (empty($user['role']) || empty($user['role_hash'])
+        if(!empty(($user = !empty($_SESSION['auth']['user'])?$_SESSION['auth']['user']:array())) 
+            && ((empty($user['role']) || empty($user['role_hash']))
             || $user['role_hash'] !== sha1($this->config['secretKey'].date('i')[0].$user['role']))){
                 
             // var_dump($user);exit(__FILE__.'::'.__LINE__);
@@ -66,10 +66,10 @@ class User
         }
         
         // inject author id
-        if(!empty(($luid = $_SESSION['auth']['user']['luid']))){
+        if(!empty($_SESSION['auth']['user']['luid'])){
             if ('POST' === $req->getMethod()) {
                 $post = $req->getParsedBody();
-                $post['authorId'] = $luid;
+                $post['authorId'] = $_SESSION['auth']['user']['luid'];
                 $req = $req->withParsedBody($post);
             }
         }

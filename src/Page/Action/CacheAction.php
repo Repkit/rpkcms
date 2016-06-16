@@ -33,7 +33,7 @@ class CacheAction
         
             $url  = $Request->getUri();
             $path = $url->getPath();
-            $query = $url->getQuery;
+            $query = $url->getQuery();
             // var_dump($url);exit(__FILE__.'::'.__LINE__);
             
             //detecting language
@@ -102,7 +102,7 @@ class CacheAction
             return $this->redirect($path, $url, $Response);
             
         }catch(\Exception $e){
-            var_dump($e->getMessage());exit();
+            // var_dump($e->getMessage());exit();
             return $Next($Request,$Response);
         }
     }

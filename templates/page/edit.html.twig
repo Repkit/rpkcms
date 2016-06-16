@@ -133,17 +133,37 @@
         <div class="tab-pane" id="page-meta-tab">
             
             <div id="dynamic-row">
+                {#if there are no meta-tags defined then show empty field so we can add#}
+                {% if page_meta is empty %}
+                    <div class="entry form-inline" style="padding: 10px 0px;">
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">1</div>
+                                <input type="text" name="meta[key][]" class="form-control" placeholder="key" pattern="^[a-z0-9-_]+$">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <textarea name="meta[value][]" class="form-control" placeholder="value" rows="1" cols="50"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-remove">
+                            <span class="glyphicon glyphicon-minus"></span>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-add">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </div>
+                {% endif %}
                 
                 {% for idx, meta in page_meta %}
                 <div class="entry form-inline" style="padding: 10px 0px;">
                     <div class="form-group">
                         <div class="input-group">
                             <div class="input-group-addon">{{idx}}</div>
-                            <input type="text" name="meta[key][]" class="form-control" placeholder="key" value="{{meta.metaKey}}" required  pattern="^[a-z0-9-_]+$">
+                            <input type="text" name="meta[key][]" class="form-control" placeholder="key" value="{{meta.metaKey}}"  pattern="^[a-z0-9-_]+$">
                         </div>
                     </div>
                     <div class="form-group">
-                        <textarea name="meta[value][]" class="form-control" placeholder="value" rows="1" cols="50" required>{{meta.metaValue}}</textarea>
+                        <textarea name="meta[value][]" class="form-control" placeholder="value" rows="1" cols="50">{{meta.metaValue}}</textarea>
                     </div>
                     <button type="submit" class="btn btn-danger btn-remove">
                         <span class="glyphicon glyphicon-minus"></span>
@@ -164,11 +184,25 @@
                 <i>for &#x3C;meta http-equiv=&#x22;refresh&#x22; content=&#x22;30&#x22;&#x3E; you should insert only http-equiv=&#x22;refresh&#x22; content=&#x22;30&#x22;</i>
             </div>
             <div id="dynamic-row-tags">
+                {#if there are no meta-tags defined then show empty field so we can add#}
+                {% if page_meta_tags is empty %}
+                    <div class="entry-tags form-inline" style="padding: 10px 0px;">
+                        <div class="form-group">
+                            <textarea name="meta_tags[value][]" class="form-control" placeholder="value" rows="1" cols="110"></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-danger btn-remove-tags">
+                            <span class="glyphicon glyphicon-minus"></span>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-add-tags">
+                            <span class="glyphicon glyphicon-plus"></span>
+                        </button>
+                    </div>
+                {% endif %}
                 
                 {% for idx, meta_tag in page_meta_tags %}
                 <div class="entry-tags form-inline" style="padding: 10px 0px;">
                     <div class="form-group">
-                        <textarea name="meta_tags[value][]" class="form-control" placeholder="value" rows="1" cols="110" required>{{meta_tag.value}}</textarea>
+                        <textarea name="meta_tags[value][]" class="form-control" placeholder="value" rows="1" cols="110">{{meta_tag.value}}</textarea>
                     </div>
                     <button type="submit" class="btn btn-danger btn-remove-tags">
                         <span class="glyphicon glyphicon-minus"></span>
@@ -225,7 +259,7 @@ function processForm() {
 	$(function() {   
 	    
 	   // page meta
-        var i=$('#dynamic-row').children('.input-group-addon').length;
+        var i=$('#dynamic-row').find('.input-group-addon').length;
         $(document).on('click', '.btn-add', function(e) {
             e.preventDefault();
     
@@ -248,7 +282,7 @@ function processForm() {
     	});
     	
     	// page meta tags
-    	var j=$('#dynamic-row-tags').children('.input-group-addon').length;
+    	var j=$('#dynamic-row-tags').find('.input-group-addon').length;
         $(document).on('click', '.btn-add-tags', function(e) {
             e.preventDefault();
     

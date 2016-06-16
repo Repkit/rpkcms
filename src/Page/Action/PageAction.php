@@ -101,6 +101,11 @@ class PageAction
                     && !empty($meta['value']) && count($meta['key']) == count($meta['value'])){
                         
                     foreach($meta['key'] as $idx => $key){
+                        // validate and filter key=>value
+                        if(!isset($key) || empty($key) || 
+                            !isset($meta['value'][$idx]) || empty($meta['value'][$idx])){
+                            continue;
+                        }
                         $metadata = [
                             'pageId' => $id, 
                             'metaKey' => $key, 
@@ -117,6 +122,10 @@ class PageAction
                 if(!empty($meta_tags) && is_array($meta_tags) && !empty($meta_tags['value'])){
                         
                     foreach($meta_tags['value'] as $idx => $value){
+                        // validate and filter value
+                        if(!isset($value) || empty($value)){
+                            continue;
+                        }
                         $metatagsdata = [
                             'pageId' => $id, 
                             'value' => $value, 
@@ -185,6 +194,11 @@ class PageAction
                 && !empty($meta['value']) && count($meta['key']) == count($meta['value'])){
                     
                 foreach($meta['key'] as $idx => $key){
+                    // validate and filter key=>value
+                    if(!isset($key) || empty($key) || 
+                        !isset($meta['value'][$idx]) || empty($meta['value'][$idx])){
+                        continue;
+                    }
                     $metadata = [
                         'pageId' => $id, 
                         'metaKey' => $key, 
@@ -201,6 +215,10 @@ class PageAction
             if(!empty($meta_tags) && is_array($meta_tags) && !empty($meta_tags['value'])){
                     
                 foreach($meta_tags['value'] as $idx => $value){
+                    // validate and filter value
+                    if(!isset($value) || empty($value)){
+                        continue;
+                    }
                     $metatagsdata = [
                         'pageId' => $id, 
                         'value' => $value, 
