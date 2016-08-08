@@ -32,8 +32,16 @@ class PdoPaginator extends AbstractPaginator implements AdapterInterface
         if (! $result) {
             throw new StorageException('Failed to fetch items from database');
         }
-
-        return $this->select->fetchAll(PDO::FETCH_ASSOC);
+        
+        // return $this->select->fetchAll(PDO::FETCH_ASSOC);
+        
+        // workaround for calling store procedures https://phpdelusions.net/pdo#call
+        $data = array();
+        do {
+            $data = $this->select->fetchAll();
+        } while ($this->select->nextRowset() && $this->select->columnCount());
+        
+        return $data;
     }
 
     public function count()

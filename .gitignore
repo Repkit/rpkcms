@@ -13,6 +13,7 @@ data/cache/
 # themes
 templates/theme/
 public/theme/
+public/data/cache/
 
 # modules configs
 # - Auth/Strategy/Google

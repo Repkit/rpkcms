@@ -201,26 +201,6 @@ class PdoAdapter implements StorageInterface
         return $select;
     }
     
-    public function fetchAllPages_deprecated(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
-    {
-        // TODO: [SECURITY] - prepare statement for where
-        if(!empty($Where)){
-            $where = implode(' AND ', array_map(
-               function ($k, $v) { return "$k = $v"; },
-               array_keys($Where),
-               array_values($Where)
-            ));
-            $where = 'WHERE '. $where;
-        }else{
-            $where = '';
-        }
-        
-        $select = "SELECT pages.*, pagePathByCategoryId(pages.categoryid) AS path FROM pages $where ORDER BY $OrderBy LIMIT :offset, :limit";
-        // echo $select,"\n";exit(__FILE__.'::'.__LINE__);
-        $count  = "SELECT COUNT(id) FROM pages $where";
-        return $this->preparePaginator($select, $count);
-    }
-    
     public function fetchAllPages(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
         // TODO: [SECURITY] - prepare statement for where

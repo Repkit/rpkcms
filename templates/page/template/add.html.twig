@@ -14,7 +14,7 @@
       
     <div class="form-group">
         <label for="template_name">Name</label>
-        <input type="text" name="name" class="form-control" id="template_name" placeholder="name" required>
+        <input type="text" name="name" class="form-control" id="template_name" placeholder="name" required pattern="^[a-z0-9-]+$">
     </div>
   
     <div class="form-group">
@@ -24,8 +24,8 @@
     
     <div class="form-group">
         <label for="template_content">Content</label>
-        <div class="form-control" id="template_content" style="height: 210px;"></div>
-        <textarea id="template_content_hidden" class="form-control hide" name="content" rows="3"></textarea>
+        <div class="form-control" id="template_content" style="height: 420px;"></div>
+        <textarea id="template_content_hidden" class="form-control hide" name="content" rows="7"></textarea>
     </div>
   
     <div class="form-group">
@@ -42,7 +42,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
 <script>
     var editor = ace.edit("template_content");
-    editor.setTheme("ace/theme/solarized_dark");
+    editor.setTheme("ace/theme/solarized_light");
     editor.getSession().setMode("ace/mode/twig");
 </script>
 

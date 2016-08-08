@@ -55,13 +55,9 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
      *
      * @return string
      */
-    public function pages($Size = 10, $Page = 1, array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
+    public function pages($Offset = 1, $Limit = 10, array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
-        $entities = $this->storage->fetchAllPages($Where, $OrderBy);
-        $entities->setItemCountPerPage($Size);
-        $entities->setCurrentPageNumber($Page);
-        
-        /*$sqlstr = "CALL `fetchAllPages` (:where, :orderby, :offset, :limit); ";
+        // TODO: [SECURITY] - prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },
@@ -72,15 +68,21 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
         }else{
             $where = '';
         }
-        $params = [':where' => $where, ':orderby' => $OrderBy, ':offset' => 0, ':limit'  => 2];
+        
+        $sqlstr = "CALL `fetchAllPages` (:where, :orderby, :offset, :limit); ";
+        
+        $params = [':where' => $where, ':orderby' => $OrderBy, ':offset' => $Offset, ':limit' => $Limit];
         
         $select = $this->storage->query($sqlstr, $params);
-        // var_dump($select);exit(__FILE__.'::'.__LINE__);
         
-        $entities = $select->fetchAll(\PDO::FETCH_ASSOC);*/
+        // workaround for calling store procedures https://phpdelusions.net/pdo#call
+        $data = array();
+        do {
+            $data = $select->fetchAll();
+        } while ($select->nextRowset() && $select->columnCount());
         
-        // var_dump($entities);exit(__FILE__.'::'.__LINE__);
-
-        return $entities;
+        // var_dump($data);exit(__FILE__.'::'.__LINE__);
+        return $data;
+        
     }
 }
