@@ -41,19 +41,21 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
                 //     'needs_environment' => true
                 // )
             ),
+            new Twig_SimpleFunction('pageCategories', [$this, 'pageCategories']),
         ];
     }
     
     /**
-     * Get all active 
+     * Get all pages
      *
-     * Usage: {{ path('article_show', {'id': '3'}) }}
-     * Generates: /article/3
+     * Usage: {{ pages(1, 10, {'pages.state': '1'}, 'pages.creationDate DESC') }}
      *
-     * @param null  $route
-     * @param array $params
+     * @param int  $Offset (optional) default: 1
+     * @param int  $Limit (optional) default: 10
+     * @param array $Where (optional) default: ['pages.state' => 1]
+     * @param string $OrderBy (optional) default: 'pages.creationDate DESC'
      *
-     * @return string
+     * @return mixed
      */
     public function pages($Offset = 1, $Limit = 10, array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
@@ -75,14 +77,51 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
         
         $select = $this->storage->query($sqlstr, $params);
         
-        // workaround for calling store procedures https://phpdelusions.net/pdo#call
-        $data = array();
-        do {
-            $data = $select->fetchAll();
-        } while ($select->nextRowset() && $select->columnCount());
-        
-        // var_dump($data);exit(__FILE__.'::'.__LINE__);
-        return $data;
+        // create generator for memory optimisation
+        while ($data = $select->fetch(\PDO::FETCH_ASSOC)) {
+            yield $data;
+        }
         
     }
+    
+    /**
+     * Get all categories
+     *
+     * Usage: {{ pages(1, 10, {'page_categories.state': '1'}, 'COUNT(1) DESC') }}
+     *
+     * @param int  $Offset (optional) default: 1
+     * @param int  $Limit (optional) default: 10
+     * @param array $Where (optional) default: ['pages.state' => 1]
+     * @param string $OrderBy (optional) default: 'pages.creationDate DESC'
+     *
+     * @return mixed
+     */
+    public function pageCategories($Offset = 1, $Limit = 10, array $Where = ['page_categories.state' => 1], $OrderBy = 'COUNT(1) DESC')
+    {
+        
+        // TODO: [SECURITY] - prepare statement for where
+        if(!empty($Where)){
+            $where = implode(' AND ', array_map(
+               function ($k, $v) { return "$k = $v"; },
+               array_keys($Where),
+               array_values($Where)
+            ));
+            $where = 'WHERE '. $where;
+        }else{
+            $where = '';
+        }
+        
+        $sqlstr = "SELECT *, COUNT(1) FROM page_categories $where group by page_categories.id ORDER BY :orderby LIMIT :offset, :limit";
+        
+        $params = [':orderby' => $OrderBy, ':offset' => $Offset, ':limit' => $Limit];
+        
+        $select = $this->storage->query($sqlstr, $params);
+        
+        // create generator for memory optimisation
+        while ($data = $select->fetch(\PDO::FETCH_ASSOC)) {
+            yield $data;
+        }
+        
+    }
+    
 }
