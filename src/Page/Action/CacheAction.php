@@ -40,7 +40,7 @@ class CacheAction
             // $lang = $Request->getAttribute('lang', 'en');
             
             //detecting requested page
-            // TODO: [PERFORMANCE] -check if better get from request first
+            // TODO [PERFORMANCE]: check if better get from request first
             if(preg_match('#\.(html|xml)$#', $path, $matches)){
                 $page = substr($path,1,-strlen(reset($matches)));
             }else{
@@ -54,7 +54,9 @@ class CacheAction
                 }
             }
             $filename = $page;
-            $page = array_pop(explode('/',$page));
+            $pageschema = explode('/',$page);
+            $page = array_pop($pageschema);
+            unset($pageschema);
             // var_dump($page);exit(__FILE__.'::'.__LINE__);
     
             $data['page'] = $page;
@@ -80,8 +82,15 @@ class CacheAction
                 $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$data);
                 // var_dump($pagedb['content']);exit(__FILE__.'::'.__LINE__);
                 // $content = file_get_contents(getcwd().'/data/cache/html/en_test.html');
-                $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
+                
+                $plugin = \RpkPluginManager\PluginChain::getInstance();
+                $params = $plugin->prepareArgs(['template'=> 'templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], 'data' => $pagedb]);
+                $plugin->trigger('page::cache-render.pre', $params);
+                
+                // $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
+                $content = $this->template->render($params['template'], $params['data']);
                 // var_dump($content);exit(__FILE__.'::'.__LINE__);
+                
                 $pagename = '/'.$pagedb['slug'].'.html';
                 $pagedir = $cachepath . $pagedb['path'];
                 if (!is_dir($pagedir)) {
@@ -102,7 +111,7 @@ class CacheAction
             return $this->redirect($path, $url, $Response);
             
         }catch(\Exception $e){
-            // var_dump($e->getMessage());exit();
+            // var_dump($e->getMessage());exit(__FILE__.'::'.__LINE__);
             return $Next($Request,$Response);
         }
     }

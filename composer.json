@@ -26,7 +26,8 @@
         "ocramius/proxy-manager": "^1.0",
         "zendframework/zend-expressive-twigrenderer": "^1.0",
         "zendframework/zend-paginator": "^2.5",
-        "opauth/opauth": "*"
+        "opauth/opauth": "*",
+        "rpk/plugin-manager": "^1.0"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8",
@@ -38,7 +39,8 @@
         "psr-4": {
             "Auth\\": "src/Auth/",
             "App\\" : "src/App/",
-            "Page\\": "src/Page/"
+            "Page\\": "src/Page/",
+            "Plugin\\": "src/Plugin/"
         }
     },
     "autoload-dev": {

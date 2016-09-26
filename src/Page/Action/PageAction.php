@@ -70,6 +70,8 @@ class PageAction
     public function addAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
     {
         $data = [];
+        $plugin = \RpkPluginManager\PluginChain::getInstance();
+        
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
             // var_dump($post);exit(__FILE__.'::'.__LINE__);
@@ -91,6 +93,16 @@ class PageAction
             }
             
             // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
+            $params = $plugin->prepareArgs(['data' => $post]);
+            // keep a blue print of the original params - useful for plugin
+            $orgparams = clone $params;
+            // trigger event where plugin must UNSET their data
+            $plugin->trigger('page::add-insert.pre', $params);
+            // get the clean post after plugins unset their data
+            $post = $params['data'];
+            
+            // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
+            $post['creationDate'] = date('Y-m-d H:i:s');
             $id = $this->storage->insert('pages',$post);
             if(!empty($id)){
                 
@@ -110,7 +122,8 @@ class PageAction
                             'pageId' => $id, 
                             'metaKey' => $key, 
                             'metaValue' => $meta['value'][$idx],
-                            'creationDate' => date('Y-m-d H:i:s'),
+                            // 'creationDate' => date('Y-m-d H:i:s'),
+                            'creationDate' => $post['creationDate'],
                             'authorId' => $authorId
                         ];
                         
@@ -129,7 +142,8 @@ class PageAction
                         $metatagsdata = [
                             'pageId' => $id, 
                             'value' => $value, 
-                            'creationDate' => date('Y-m-d H:i:s'),
+                            // 'creationDate' => date('Y-m-d H:i:s'),
+                            'creationDate' => $post['creationDate'],
                             'authorId' => $authorId
                         ];
                         
@@ -138,6 +152,9 @@ class PageAction
                 }
                 
                 $url = $this->router->generateUri('admin.page', ['action' => 'edit','id' => $id]);
+                
+                $plugin->trigger('page::add-insert.post', ['id' => $id, 'data' => $orgparams['data']]);
+                
                 return $Response
                     ->withStatus(302)
                     ->withHeader('Location', (string) $url);
@@ -151,7 +168,16 @@ class PageAction
         $data['user_roles'] = $this->storage->fetchAll('user_roles',[]);
         $data['page_statuses'] = $this->storage->fetchAll('page_statuses');
         
-        return new HtmlResponse($this->template->render('page::add', $data));
+        $plugin = \RpkPluginManager\PluginChain::getInstance();
+        $params = $plugin->prepareArgs(['template'=> 'page::add', 'data' => $data]);
+        $plugin->trigger('page::add-render.pre', $params);
+        
+        // return new HtmlResponse($this->template->render('page::add', $data));
+        $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
+        
+        $response = $Next($Request, $htmlResponse); 
+        
+        return $response;
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -177,6 +203,11 @@ class PageAction
                 $meta_tags = $post['meta_tags'];
                 unset($post['meta_tags']);
             }
+            
+            $plugin = \RpkPluginManager\PluginChain::getInstance();
+            $params = $plugin->prepareArgs(['id'=> $id, 'data' => $post]);
+            $plugin->trigger('page::edit-update.pre', $params);
+            $post = $params['data'];
             
             $this->storage->update('pages',$post, ['id' => $id]);
             
@@ -259,7 +290,16 @@ class PageAction
         $data['page_meta'] = $this->storage->fetchAll('page_meta',['pageId'=>$id]);
         $data['page_meta_tags'] = $this->storage->fetchAll('page_meta_tags',['pageId'=>$id]);
         
-        return new HtmlResponse($this->template->render('page::edit', $data));
+        $plugin = \RpkPluginManager\PluginChain::getInstance();
+        $params = $plugin->prepareArgs(['template'=> 'page::edit', 'data' => $data]);
+        $plugin->trigger('page::edit-render.pre', $params);
+        
+        // return new HtmlResponse($this->template->render('page::edit', $data));
+        $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
+        
+        $response = $Next($Request, $htmlResponse); 
+        
+        return $response;
     }
     
     public function previewAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -283,7 +323,7 @@ class PageAction
         $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$post);
         
         // copy-paste from CacheAction
-        //TODO [IMPROVEMENT]: avoid code duplication from CacheAction
+        // TODO [IMPROVEMENT]: avoid code duplication from CacheAction
         $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
         
         return new HtmlResponse($content);

@@ -19,6 +19,7 @@
     <li class="active"><a href="#page-tab" data-toggle="tab">Page definition </a></li>
     <li><a href="#page-meta-tab" data-toggle="tab">Extend </a></li>
     <li><a href="#page-meta-tags-tab" data-toggle="tab">Metadata </a></li>
+    <li><a href="#page-paginator-tab" data-toggle="tab">Paginator </a></li>
 </ul>
 
 <form id="form" method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
@@ -217,6 +218,66 @@
             
         </div>
         
+        {#paginator#}
+        <div class="tab-pane" id="page-paginator-tab">
+            
+            <input type="hidden" name="paginator[id]" value="{{page.paginator.id|default('')}}">
+            {#name#}
+            <div class="form-group">
+                <label for="name">Name <small>will be used to generate sublists</small></label>
+                <input type="text" name="paginator[name]" class="form-control" id="paginator-name" placeholder="name" value="{{page.paginator.name|default('')}}" required pattern="^[a-z0-9-]+$" {{page.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#list template#}
+            <input type="hidden" id="_tmp_paginator_list_templateid" value="{{page.paginator.listTemplateId|default('')}}" disabled="disabled">
+            <div class="form-group">
+                <label for="paginator-listTemplate">List template</label>
+                <select id="paginator-listTemplate" class="form-control" name="paginator[listTemplateId]" required {{page.paginator.state ?'':'disabled="disabled"'}}>
+                </select>
+            </div>
+            
+            {#items number#}
+            <div class="form-group">
+                <label for="name">Items number per list</label>
+                <input type="text" name="paginator[itemsNumber]" class="form-control" id="paginator-itemsNumber" placeholder="Items number per list" value="{{page.paginator.itemsNumber|default('')}}" required {{page.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#sort-by#}
+            <div class="form-group">
+                <label for="name">Sort by</label>
+                <input type="text" name="paginator[sortBy]" class="form-control" id="paginator-sortBy" placeholder="Sort by" value="{{page.paginator.sortBy|default('')}}" required {{page.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#sort order#}
+            <div class="form-group">
+                <label for="paginator-sortOrder">Sort order</label>
+                <select id="paginator-sortOrder" class="form-control" name="paginator[sortOrder]" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                  {% if page.paginator.sortOrder |default('asc') == 'asc' %}
+                  <option value="asc" selected>Ascendent</option>
+                  <option value="desc">Descendent</option>
+                  {% else %}
+                  <option value="asc">Ascendent</option>
+                  <option value="desc" selected>Descendent</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+            {#state#}
+            <div class="form-group">
+                <label for="plugin_paginator">Paginator</label>
+                <select id="plugin_paginator" class="form-control" name="paginator[state]" onchange="paginator(event);">
+                  {% if page.paginator.state %}
+                  <option value="1" selected>Active</option>
+                  <option value="0">Inactive</option>
+                  {% else %}
+                  <option value="1">Active</option>
+                  <option value="0" selected>Inactive</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+        </div>
+        
     </div>
   
     <button type="submit" class="btn btn-success">Submit</button>
@@ -256,7 +317,7 @@ function processForm() {
 	    $('#form').attr('action','{{ url('admin.page', {'action': 'edit'}) }}').attr('target','_self');
 	});
 	
-	$(function() {   
+	$(function() {
 	    
 	   // page meta
         var i=$('#dynamic-row').find('.input-group-addon').length;
@@ -303,8 +364,43 @@ function processForm() {
     		e.preventDefault();
     		return false;
     	});
-    });
+    	
+    	var pageTplElm = document.getElementById('page_templates');
+        var pagetemplates = pageTplElm.innerHTML;
+        
+        var listTplElm = document.getElementById('paginator-listTemplate');
+        var listtemplates = listTplElm.innerHTML + pagetemplates;
+        
+        listTplElm.innerHTML = listtemplates;
+        
+        var selectedListTpl = document.getElementById('_tmp_paginator_list_templateid').value;
+        
+        // listTplElm.options[parseInt(selectedListTpl.value)-1].selected = true;
+        
+        for (var i = 0; i < listTplElm.options.length; i++) {
+            if(listTplElm.options[i].value == selectedListTpl){
+              listTplElm.options[i].selected = true;
+            }
+        }
 
+    });
+    
+// enable/disable paginator
+function paginator(event) {
+  if(event.target.value == 1){
+      document.getElementById('paginator-name').removeAttribute("disabled");
+      document.getElementById('paginator-listTemplate').removeAttribute("disabled");
+      document.getElementById('paginator-itemsNumber').removeAttribute("disabled");
+      document.getElementById('paginator-sortBy').removeAttribute("disabled");
+      document.getElementById('paginator-sortOrder').removeAttribute("disabled");
+  }else{
+      document.getElementById('paginator-name').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-listTemplate').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-itemsNumber').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-sortBy').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-sortOrder').setAttribute("disabled", "disabled");
+  }
+}
 
 </script>
 {% endblock %}

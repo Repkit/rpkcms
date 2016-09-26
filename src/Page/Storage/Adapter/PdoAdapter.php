@@ -36,7 +36,7 @@ class PdoAdapter implements StorageInterface
     
     public function fetchAll($Name, array $Where = ['state' => 1], $OrderBy = 'creationDate DESC')
     {
-        // TODO: [SECURITY] - prepare statement for where
+        // TODO [SECURITY]: prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },
@@ -96,7 +96,7 @@ class PdoAdapter implements StorageInterface
 			}
 		}*/
 		
-		//processing insertsion while there is no duplicated value
+		//processing insertion while there is no duplicated value
 		//if(!$duplicate) {
 			$sql = 'INSERT INTO '.$Name.' ('.$fields.') VALUES('.$params.')';
 			
@@ -133,7 +133,7 @@ class PdoAdapter implements StorageInterface
 		$fields = implode(',', array_keys($Data));
 		
 		//generating where condition
-		// TODO: [SECURITY] - prepare statement for where
+		// TODO [SECURITY]: prepare statement for where
         $where = implode(' AND ', array_map(
            function ($k, $v) { return "$k = $v"; },
            array_keys($Where),
@@ -152,7 +152,7 @@ class PdoAdapter implements StorageInterface
     public function delete($Name, array $Where)
     {
         //generating where condition
-		// TODO: [SECURITY] - prepare statement for where
+		// TODO [SECURITY]: prepare statement for where
         $where = implode(' AND ', array_map(
            function ($k, $v) { return "$k = $v"; },
            array_keys($Where),
@@ -203,7 +203,7 @@ class PdoAdapter implements StorageInterface
     
     public function fetchAllPages(array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
-        // TODO: [SECURITY] - prepare statement for where
+        // TODO [SECURITY]: prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },

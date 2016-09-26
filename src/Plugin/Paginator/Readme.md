@@ -1,0 +1,2 @@
+- this is a plugin and must be separed into plugin's namespace
+- it will be used beside Page

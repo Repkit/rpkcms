@@ -66,14 +66,24 @@ class TemplateAction
     public function addAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
     {
         $data = [];
+        $plugin = \RpkPluginManager\PluginChain::getInstance();
+        
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // var_dump($post);exit();
-            // TODO: [SECURITY] - validate content
+            // TODO [SECURITY]: validate content
             $content = $post['content'];
             unset($post['content']);
             $post['creationDate'] = date('Y-m-d H:i:s');
             
+            $params = $plugin->prepareArgs(['data' => $post]);
+            // keep a blue print of the original params - useful for plugin
+            $orgparams = clone $params;
+            // trigger event where plugin must UNSET their data
+            $plugin->trigger('page/template::add-insert.pre', $params);
+            // get the clean post after plugins unset their data
+            $post = $params['data'];
+            
+            // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
             $id = $this->storage->insert('page_templates',$post);
             if(!empty($id)){
                 $path = getcwd().'/templates'.$post['path'];
@@ -86,16 +96,28 @@ class TemplateAction
                 }
                 file_put_contents($path.$post['name'].'.html.twig', $content);
                 $url = $this->router->generateUri('admin.page-template', ['action' => 'edit','id' => $id]);
+                
+                $plugin->trigger('page/template::add-insert.post', ['id' => $id, 'data' => $orgparams['data']]);
+                
                 return $Response
                     ->withStatus(302)
                     ->withHeader('Location', (string) $url);
             }
             
-            $data = $post;
+            // $data = $post;
+            $data = $orgparams['data'];
             $data['content'] = $content;
         }
         
-        return new HtmlResponse($this->template->render('page/template::add', $data));
+        // return new HtmlResponse($this->template->render('page/template::add', $data));
+        $params = $plugin->prepareArgs(['template'=> 'page/template::add', 'data' => $data]);
+        $plugin->trigger('page/template::add-render.pre', $params);
+        
+        $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
+        
+        $response = $Next($Request, $htmlResponse); 
+        
+        return $response;
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -105,7 +127,7 @@ class TemplateAction
         
         if (!empty($id) && 'POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
-            // TODO: [SECURITY] - validate content
+            // TODO [SECURITY]: validate content
             $content = $post['content'];
             unset($post['content']);
             
@@ -128,8 +150,15 @@ class TemplateAction
             }
             file_put_contents($file, $content);
             try{
-                $this->storage->update('page_templates',$post, ['id' => $id]);
+                
+                $plugin = \RpkPluginManager\PluginChain::getInstance();
+                $params = $plugin->prepareArgs(['id'=> $id, 'data' => $post]);
+                $plugin->trigger('page/template::edit-update.pre', $params);
+                $post = $params['data'];
+                
+                $this->storage->update('page_templates', $post, ['id' => $id]);
             }catch(\Exception $e){
+                // var_dump($e->getMessage());exit(__FILE__.'::'.__LINE__);
                 if (!copy($bakfile, $file)) {
                     throw new \Exception('failed to update template and to restore content of the old one from: '. $bakfile);
                 }else{
@@ -158,7 +187,18 @@ class TemplateAction
         $content = file_get_contents(getcwd().'/templates'.$entity['path'].$entity['name'].'.html.twig');
         $data['page_template'] = $entity;
         $data['page_template']['content'] = $content;
-        return new HtmlResponse($this->template->render('page/template::edit', $data));
+        
+        // return new HtmlResponse($this->template->render('page/template::edit', $data));
+        
+        $plugin = \RpkPluginManager\PluginChain::getInstance();
+        $params = $plugin->prepareArgs(['template'=> 'page/template::edit', 'data' => $data]);
+        $plugin->trigger('page/template::edit-render.pre', $params);
+        
+        $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
+        
+        $response = $Next($Request, $htmlResponse); 
+        
+        return $response;
     }
     
 }

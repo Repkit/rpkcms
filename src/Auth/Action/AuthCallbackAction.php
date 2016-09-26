@@ -25,7 +25,10 @@ class AuthCallbackAction
 				}
     			$authResponse = $_SESSION['opauth'];
         		unset($_SESSION['opauth']);
-        		$redirect = $_SESSION['auth']['redirect'];
+                // var_dump($_SESSION);exit(__CLASS__.__LINE__);
+                if(!empty($_SESSION['auth']['redirect'])){
+                    $redirect = $_SESSION['auth']['redirect'];
+                }
         		unset($_SESSION['auth']['redirect']);
                 break;
             case 'post':

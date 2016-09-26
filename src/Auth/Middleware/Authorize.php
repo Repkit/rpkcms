@@ -29,7 +29,11 @@ class Authorize
         if(!empty($this->config['authorize']['middleware'][$middleware])){
             $roles = $this->config['authorize']['middleware'][$middleware];
             // var_dump($roles);exit(__FILE__.'::'.__LINE__);
-            if(empty(($user = $_SESSION['auth']['user'])) || !in_array($user['role'],$roles)){
+            $user = null;
+            if(!empty($_SESSION['auth']['user'])){
+                $user = $_SESSION['auth']['user'];
+            }
+            if(!is_array($user) || empty($user['role']) || !in_array($user['role'],$roles)){
                 return $next($req, $res->withStatus(403), 'This is a restricted area!');
             }
         }
@@ -38,7 +42,11 @@ class Authorize
         $route = $match->getMatchedRouteName();
         if(!empty($this->config['authorize']['route'][$route])){
             $roles = $this->config['authorize']['route'][$route];
-            if(empty(($user = $_SESSION['auth']['user'])) || $user['info']['email'] !== 'repkit@gmail.com'){
+            $user = null;
+            if(!empty($_SESSION['auth']['user'])){
+                $user = $_SESSION['auth']['user'];
+            }
+            if(!is_array($user) || !isset($user['info']['email']) || $user['info']['email'] !== 'repkit@gmail.com'){
                 return $next($req, $res->withStatus(403), 'This is a restricted area!');
             }
         }

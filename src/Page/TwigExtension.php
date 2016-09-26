@@ -59,7 +59,7 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
      */
     public function pages($Offset = 1, $Limit = 10, array $Where = ['pages.state' => 1], $OrderBy = 'pages.creationDate DESC')
     {
-        // TODO: [SECURITY] - prepare statement for where
+        // TODO [SECURITY]: prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },
@@ -99,7 +99,7 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
     public function pageCategories($Offset = 1, $Limit = 10, array $Where = ['page_categories.state' => 1], $OrderBy = 'COUNT(1) DESC')
     {
         
-        // TODO: [SECURITY] - prepare statement for where
+        // TODO [SECURITY]: prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },
@@ -111,7 +111,13 @@ class TwigExtension extends Twig_Extension implements Twig_Extension_GlobalsInte
             $where = '';
         }
         
-        $sqlstr = "SELECT *, COUNT(1) FROM page_categories $where group by page_categories.id ORDER BY :orderby LIMIT :offset, :limit";
+        $sqlstr = " SELECT page_categories.*, COUNT(1) 
+                    FROM page_categories 
+                    LEFT JOIN pages ON page_categories.id = pages.categoryId 
+                    $where 
+                    group by page_categories.id 
+                    ORDER BY :orderby 
+                    LIMIT :offset, :limit";
         
         $params = [':orderby' => $OrderBy, ':offset' => $Offset, ':limit' => $Limit];
         

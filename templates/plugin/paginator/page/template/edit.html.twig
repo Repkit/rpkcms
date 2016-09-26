@@ -1,0 +1,191 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Edit page template{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#page-template-tab" data-toggle="tab">Template definition </a></li>
+    <li><a href="#page-template-paginator-tab" data-toggle="tab">Paginator definition </a></li>
+</ul>
+
+<form method="post" action="{{ url('admin.page-template', {'action': 'edit'}) }}" onsubmit="processForm()">
+    
+    <div class="tab-content">
+        
+        {#template#}
+        <div class="tab-pane active" id="page-template-tab">
+            
+            {#name#}
+            <input type="hidden" name="id" id="template_id" value="{{page_template.id}}" required>  
+            <div class="form-group">
+                <label for="template_name">Name</label>
+                <input type="text" name="name" class="form-control" id="template_name" value="{{page_template.name}}" placeholder="name" required pattern="^[a-z0-9-]+$">
+            </div>
+            
+            {#path#}
+            <div class="form-group">
+                <label for="template_path">Path</label>
+                <input type="text" name="path" class="form-control" id="template_path" value="{{page_template.path}}" placeholder="path" required>
+            </div>
+            
+            {#content#}
+            <div class="form-group">
+                <label for="template_content">Content</label>
+                <div class="form-control" id="template_content" style="height: 420px;">{{page_template.content}}</div>
+                <textarea id="template_content_hidden" class="form-control hide" name="content" rows="7"></textarea>
+                <a href="javascript:fullscreen();" style="float: right;margin-top: -19px;margin-right: 1px;">
+                    <span id="fullscreen" class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                </a>
+            </div>
+            
+            {#paginator#}
+            <div class="form-group">
+                <label for="template_plugin_paginator">Paginator</label>
+                <select id="template_plugin_paginator" class="form-control" name="paginator[state]" onchange="paginator(event);">
+                  {% if page_template.paginator.state %}
+                  <option value="1" selected>Active</option>
+                  <option value="0">Inactive</option>
+                  {% else %}
+                  <option value="1">Active</option>
+                  <option value="0" selected>Inactive</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+            {#state#}
+            <div class="form-group">
+                <label for="template_state">State</label>
+                <select id="template_state" class="form-control" name="state">
+                  {% if page_template.state %}
+                  <option value="1" selected>Active</option>
+                  <option value="0">Inactive</option>
+                  {% else %}
+                  <option value="1">Active</option>
+                  <option value="0" selected>Inactive</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+        </div>
+        
+        {#paginator#}
+        <div class="tab-pane" id="page-template-paginator-tab">
+            
+            
+            <input type="hidden" name="paginator[id]" value="{{page_template.paginator.id|default('')}}">
+            {#name#}
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="paginator[name]" class="form-control" id="paginator-name" placeholder="name" value="{{page_template.paginator.name|default('')}}" required {{page_template.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#items number#}
+            <div class="form-group">
+                <label for="name">Items number per list</label>
+                <input type="text" name="paginator[itemsNumber]" class="form-control" id="paginator-itemsNumber" placeholder="Items number per list" value="{{page_template.paginator.itemsNumber|default('')}}" required {{page_template.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#sort-by#}
+            <div class="form-group">
+                <label for="name">Sort by</label>
+                <input type="text" name="paginator[sortBy]" class="form-control" id="paginator-sortBy" placeholder="Sort by" value="{{page_template.paginator.sortBy|default('')}}" required {{page_template.paginator.state ?'':'disabled="disabled"'}}>
+            </div>
+            
+            {#sort order#}
+            <div class="form-group">
+                <label for="template_plugin_paginator_sortorder">Sort order</label>
+                <select id="paginator-template_plugin_paginator_sortorder" class="form-control" name="paginator[sortOrder]" {{page_template.paginator.state ?'':'disabled="disabled"'}}>
+                  {% if page_template.paginator.sortOrder |default('asc') == 'asc' %}
+                  <option value="asc" selected>Ascendent</option>
+                  <option value="desc">Descendent</option>
+                  {% else %}
+                  <option value="asc">Ascendent</option>
+                  <option value="desc" selected>Descendent</option>
+                  {% endif %}
+                </select>
+            </div>
+            
+        </div>
+        
+    </div>
+    
+    <button type="submit" class="btn btn-success">Submit</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("template_content");
+    editor.setTheme("ace/theme/solarized_light");
+    editor.getSession().setMode("ace/mode/twig");
+</script>
+
+<script>
+function processForm() {
+    document.getElementById("template_content_hidden").value = editor.getSession().getValue();
+}
+function fullscreen(){
+    var i = document.getElementById("template_content");
+    i.dataset.height = i.style.height;
+    i.dataset.width = i.style.width;
+    i.style.height = window.innerHeight+'px';
+    i.style.width = window.innerWidth+'px';
+    editor.resize();
+    
+    function fullscreenchange(){
+        if (
+        	document.fullscreenElement ||
+        	document.webkitFullscreenElement ||
+        	document.mozFullScreenElement ||
+        	document.msFullscreenElement
+        ) {
+            //console.log('fullscreen');
+        }else{
+            var i = document.getElementById("template_content");
+            i.style.height = i.dataset.height;
+            i.style.width = i.dataset.width;
+            editor.resize();
+        }
+    }
+
+    // go full-screen
+    if (i.requestFullscreen) {
+    	i.requestFullscreen();
+    	document.addEventListener("fullscreenchange", fullscreenchange);
+    } else if (i.webkitRequestFullscreen) {
+    	i.webkitRequestFullscreen();
+    	document.addEventListener("webkitfullscreenchange", fullscreenchange);
+    } else if (i.mozRequestFullScreen) {
+    	i.mozRequestFullScreen();
+    	document.addEventListener("mozfullscreenchange", fullscreenchange);
+    } else if (i.msRequestFullscreen) {
+    	i.msRequestFullscreen();
+    	document.addEventListener("MSFullscreenChange", fullscreenchange);
+    }
+    
+}
+
+// enable/disable paginator
+function paginator(event) {
+  if(event.target.value == 1){
+      document.getElementById('paginator-name').removeAttribute("disabled");
+      document.getElementById('paginator-itemsNumber').removeAttribute("disabled");
+      document.getElementById('paginator-sortBy').removeAttribute("disabled");
+      document.getElementById('paginator-template_plugin_paginator_sortorder').removeAttribute("disabled");
+  }else{
+      document.getElementById('paginator-name').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-itemsNumber').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-sortBy').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-template_plugin_paginator_sortorder').setAttribute("disabled", "disabled");
+  }
+}
+
+</script>
+
+{% endblock %}

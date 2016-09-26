@@ -26,7 +26,7 @@ class PdoPaginator extends AbstractPaginator implements AdapterInterface
             ':offset' => $offset,
             ':limit'  => $itemCountPerPage,
         ]);
-
+        
         $result = $this->select->execute($params);
 
         if (! $result) {
@@ -34,17 +34,22 @@ class PdoPaginator extends AbstractPaginator implements AdapterInterface
         }
         
         // create generator for memory optimisation
-        while ($data = $this->select->fetch(\PDO::FETCH_ASSOC)) {
-            yield $data;
-        }
+        // !!! for some reason this produce a seg fault when using in paginator to generate sublists
+        /*while ($data = $this->select->fetch(\PDO::FETCH_ASSOC)) {
+            try{
+                yield $data;
+            }catch(\Exception $e){
+                // there is a php bug that is an exception is throw inside generator shitty problems occur :(
+            }
+        }*/
         
         // workaround for calling store procedures https://phpdelusions.net/pdo#call
-        /*$data = array();
+        $data = array();
         do {
             $data = $this->select->fetchAll();
         } while ($this->select->nextRowset() && $this->select->columnCount());
         
-        return $data;*/
+        return $data;
     }
 
     public function count()

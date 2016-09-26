@@ -69,6 +69,8 @@ class CategoryAction
         $data = [];
         if ('POST' === $Request->getMethod()) {
             $post = $Request->getParsedBody();
+            // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
+            $post['creationDate'] = date('Y-m-d H:i:s');
             $id = $this->storage->insert('page_categories',$post);
             if(!empty($id)){
                 $url = $this->router->generateUri('admin.page-category', ['action' => 'edit','id' => $id]);

@@ -1,0 +1,175 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Add page template{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+
+<ul class="nav nav-tabs">
+    <li class="active"><a href="#page-template-tab" data-toggle="tab">Template definition </a></li>
+    <li><a href="#page-template-paginator-tab" data-toggle="tab">Paginator definition </a></li>
+</ul>
+
+<form method="post" action="{{ url('admin.page-template', {'action': 'add'}) }}" onsubmit="processForm()">
+    
+    <div class="tab-content">
+        
+        {#template#}
+        <div class="tab-pane active" id="page-template-tab">
+            
+            {#name#}
+            <div class="form-group">
+                <label for="template_name">Name</label>
+                <input type="text" name="name" class="form-control" id="template_name" placeholder="name" required pattern="^[a-z0-9-]+$">
+            </div>
+            
+            {#path#}
+            <div class="form-group">
+                <label for="template_path">Path</label>
+                <input type="text" name="path" class="form-control" id="template_path" placeholder="path" required>
+            </div>
+            
+            {#content#}
+            <div class="form-group">
+                <label for="template_content">Content</label>
+                <div class="form-control" id="template_content" style="height: 420px;"></div>
+                <textarea id="template_content_hidden" class="form-control hide" name="content" rows="7"></textarea>
+                <a href="javascript:fullscreen();" style="float: right;margin-top: -19px;margin-right: 1px;">
+                    <span id="fullscreen" class="glyphicon glyphicon-fullscreen" aria-hidden="true"></span>
+                </a>
+            </div>
+            
+            {#paginator#}
+            <div class="form-group">
+                <label for="template_plugin_paginator">Paginator</label>
+                <select id="template_plugin_paginator" class="form-control" name="paginator[state]" onchange="paginator(event);">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+            </div>
+            
+            {#state#}
+            <div class="form-group">
+                <label for="template_state">State</label>
+                <select id="template_state" class="form-control" name="state">
+                  <option value="1">Active</option>
+                  <option value="0">Inactive</option>
+                </select>
+            </div>
+            
+        </div>
+        
+        {#paginator#}
+        <div class="tab-pane" id="page-template-paginator-tab">
+            
+            
+            <input type="hidden" name="paginator[id]">
+            {#name#}
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" name="paginator[name]" class="form-control" id="paginator-name" placeholder="name" required >
+            </div>
+            
+            {#items number#}
+            <div class="form-group">
+                <label for="name">Items number per list</label>
+                <input type="text" name="paginator[itemsNumber]" class="form-control" id="paginator-itemsNumber" placeholder="Items number per list" required >
+            </div>
+            
+            {#sort-by#}
+            <div class="form-group">
+                <label for="name">Sort by</label>
+                <input type="text" name="paginator[sortBy]" class="form-control" id="paginator-sortBy" placeholder="Sort by" required >
+            </div>
+            
+            {#sort order#}
+            <div class="form-group">
+                <label for="template_plugin_paginator_sortorder">Sort order</label>
+                <select id="paginator-template_plugin_paginator_sortorder" class="form-control" name="paginator[sortOrder]" >
+                  <option value="asc" selected>Ascendent</option>
+                  <option value="desc">Descendent</option>
+                </select>
+            </div>
+            
+        </div>  
+        
+    </div>
+    
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+    var editor = ace.edit("template_content");
+    editor.setTheme("ace/theme/solarized_light");
+    editor.getSession().setMode("ace/mode/twig");
+</script>
+
+<script>
+
+function processForm() {
+    document.getElementById("template_content_hidden").value = editor.getSession().getValue();
+}
+function fullscreen(){
+    var i = document.getElementById("template_content");
+    i.dataset.height = i.style.height;
+    i.dataset.width = i.style.width;
+    i.style.height = window.innerHeight+'px';
+    i.style.width = window.innerWidth+'px';
+    editor.resize();
+    
+    function fullscreenchange(){
+        if (
+        	document.fullscreenElement ||
+        	document.webkitFullscreenElement ||
+        	document.mozFullScreenElement ||
+        	document.msFullscreenElement
+        ) {
+            //console.log('fullscreen');
+        }else{
+            var i = document.getElementById("template_content");
+            i.style.height = i.dataset.height;
+            i.style.width = i.dataset.width;
+            editor.resize();
+        }
+    }
+
+    // go full-screen
+    if (i.requestFullscreen) {
+    	i.requestFullscreen();
+    	document.addEventListener("fullscreenchange", fullscreenchange);
+    } else if (i.webkitRequestFullscreen) {
+    	i.webkitRequestFullscreen();
+    	document.addEventListener("webkitfullscreenchange", fullscreenchange);
+    } else if (i.mozRequestFullScreen) {
+    	i.mozRequestFullScreen();
+    	document.addEventListener("mozfullscreenchange", fullscreenchange);
+    } else if (i.msRequestFullscreen) {
+    	i.msRequestFullscreen();
+    	document.addEventListener("MSFullscreenChange", fullscreenchange);
+    }
+    
+}
+
+// enable/disable paginator
+function paginator(event) {
+  if(event.target.value == 1){
+      document.getElementById('paginator-name').removeAttribute("disabled");
+      document.getElementById('paginator-itemsNumber').removeAttribute("disabled");
+      document.getElementById('paginator-sortBy').removeAttribute("disabled");
+      document.getElementById('paginator-template_plugin_paginator_sortorder').removeAttribute("disabled");
+  }else{
+      document.getElementById('paginator-name').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-itemsNumber').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-sortBy').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-template_plugin_paginator_sortorder').setAttribute("disabled", "disabled");
+  }
+}
+</script>
+
+{% endblock %}

@@ -28,7 +28,7 @@ class PdoAdapter implements StorageInterface
     
     public function fetchAll($Name, array $Where = ['state' => 1], $OrderBy = 'creationDate DESC')
     {
-        // TODO: [SECURITY] - prepare statement for where
+        // TODO [SECURITY]: prepare statement for where
         if(!empty($Where)){
             $where = implode(' AND ', array_map(
                function ($k, $v) { return "$k = $v"; },
@@ -94,7 +94,7 @@ class PdoAdapter implements StorageInterface
 		$fields = implode(',', array_keys($Data));
 		
 		//generating where condition
-		// TODO: [SECURITY] - prepare statement for where
+		// TODO [SECURITY]: prepare statement for where
         $where = implode(' AND ', array_map(
            function ($k, $v) { return "$k = $v"; },
            array_keys($Where),

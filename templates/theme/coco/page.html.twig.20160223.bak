@@ -1,8 +1,0 @@
-{% extends '@layout/default.html.twig' %}
-
-{% block title %}by-mistake.com{% endblock %}
-
-{% block content %}
-<h1>Page - theme cocorico</h1>
-{{content}}
-{% endblock %}

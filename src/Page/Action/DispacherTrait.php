@@ -19,5 +19,22 @@ trait DispacherTrait
         }
 
         return $this->$action($Request, $Response, $Next);
+        
+        // never used but keeped here like a though
+        /*$response = $this->$action($Request, $Response, $Next);
+        
+        if(!$response instanceof ResponseInterface){
+            
+            // trigger event here 
+            PluginChain::trigger(__FUNCTION__, ['template'=> 'app::home-page', 'data' => $data]);
+            
+            $template = !empty($response['template']) ? $response['template'] : "page::$action";
+            $data = !empty($response['data']) ? $response['data'] : $response;
+            $response = new HtmlResponse($this->template->render($response['template'], $response['data']));
+            $response = $Next($Request, $response);
+            
+        }
+        
+        return $response;*/
     }
 }
