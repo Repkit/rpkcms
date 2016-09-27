@@ -121,6 +121,9 @@ class Paginator
         
         // save paginator
         $this->save($id, $paginator);
+        
+        // regenerate all lists
+        $this->regenerate();
     }
     
     private function cache_RenderPre($Params)
@@ -297,31 +300,39 @@ class Paginator
         }
     }
     
-    private function regenerate($data)
+    private function regenerate()
     {
-        return;
-        // get all pages that are active and use this template
-        $where = [
-            'pages.state' => 1,
-            'pages.templateId' => $data['templateId']
-        ];
-        $pages = $this->storage->fetchAllPages($where);
-        $cachepath = $this->pageConf['cache']['path'];
+        $query = "  SELECT pages.slug, page_paginator.name, pagePathByCategoryId(pages.categoryid) as path 
+                    FROM pages
+                    INNER JOIN page_paginator 
+                        ON pages.id = page_paginator.pageId ";
+        $select = $this->storage->query($query);
         
-        foreach($pages as $page){
+        $lists = array();
+        do {
+            $lists = $select->fetchAll();
+        } while ($select->nextRowset() && $select->columnCount());
+        
+        if(empty($lists)){
+            return;
+        }
+        
+        $cachepath = getcwd().'/public/data/cache/html';
+        
+        foreach($lists as $list){
             
-            var_dump($page);exit(__FILE__.'::'.__LINE__);
-            $pagedir = $cachepath . $page['path'];
-            if (!is_dir($pagedir)) {
-                // the page dir should exist already
-                continue;
-                /*// dir doesn't exist, make it
-                mkdir($pagedir, 0777, true);*/
-            }
-            $listdir = $pagedir.$page['slug'];
-            // if lists dir not created then create it
-            if (!is_dir($listdir)) {
-                mkdir($listdir, 0777, true);
+            $sublistdir = $cachepath . $list['path'].'/'. $list['slug'];
+            
+            // delete main list
+            unlink($sublistdir.'.html');
+            
+            // delete sublists
+            if(is_dir($sublistdir)){
+                
+                $name = $list['name'];
+                $listpattern = "$sublistdir/$name-*.html";
+                array_map('unlink', ( glob( $listpattern ) ? glob( $listpattern ) : array() ) );
+                
             }
             
         }
