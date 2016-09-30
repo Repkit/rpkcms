@@ -136,7 +136,8 @@ class CategoryAction
             if(empty($oldid) || empty($newid)){
                 throw \Exception ('empty data!');
             }
-            $cachepath = getcwd().'/public/data/cache/html';
+            // $cachepath = getcwd().'/public/data/cache/html';
+            $cachepath = \Page\ModuleConfig::cachepath();
             
             // determine old path
             $oldpath = $this->storage->getPageCateoryPathById($oldid);

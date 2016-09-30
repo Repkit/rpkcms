@@ -86,7 +86,9 @@ class TemplateAction
             // TODO [IMPROVEMENT]: implement hydrator so only db fields are used
             $id = $this->storage->insert('page_templates',$post);
             if(!empty($id)){
-                $path = getcwd().'/templates'.$post['path'];
+                $themepath = \Page\ModuleConfig::themepath();
+                // $path = getcwd().'/templates'.$post['path'];
+                $path = $themepath.$post['path'];
                 if(substr($path,-1) !== '/'){
                 	$path .= '/';
                 }
@@ -131,8 +133,9 @@ class TemplateAction
             $content = $post['content'];
             unset($post['content']);
             
-            
-            $path = getcwd().'/templates'.$post['path'];
+            $themepath = \Page\ModuleConfig::themepath();
+            // $path = getcwd().'/templates'.$post['path'];
+            $path = $themepath.$post['path'];
             if(substr($path,-1) !== '/'){
             	$path .= '/';
             }
@@ -169,7 +172,8 @@ class TemplateAction
             // delete cache of the pages that use this template
             // TODO [PERFORMANCE]: query only for slug column
             $pages = $this->storage->fetchAllPages(['templateId'=>$id]);
-            $cachepath = getcwd().'/public/data/cache/html/';
+            // $cachepath = getcwd().'/public/data/cache/html/';
+            $cachepath = \Page\ModuleConfig::cachepath();
             foreach($pages as $page){
                 // $file = $cachepath.$page['slug'].'.html';
                 $file = $cachepath. $page['path'].'/'.$page['slug'].'.html';
@@ -184,7 +188,9 @@ class TemplateAction
         }
         
         $entity = $this->storage->fetch('page_templates',$id);
-        $content = file_get_contents(getcwd().'/templates'.$entity['path'].$entity['name'].'.html.twig');
+        $themepath = \Page\ModuleConfig::themepath();
+        // $content = file_get_contents(getcwd().'/templates'.$entity['path'].$entity['name'].'.html.twig');
+        $content = file_get_contents($themepath.$entity['path'].$entity['name'].'.html.twig');
         $data['page_template'] = $entity;
         $data['page_template']['content'] = $content;
         

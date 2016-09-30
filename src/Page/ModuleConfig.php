@@ -60,7 +60,8 @@ class ModuleConfig
             'templates' => [
                 'paths'     => [
                     'page'      => ['templates/page'],
-                    'theme'     => ['templates/theme'],
+                    // 'theme'     => ['templates/theme'],
+                    'theme'     => [static::themepath()],
                     'templates' => ['templates'],
                 ],
             ],
@@ -85,7 +86,8 @@ class ModuleConfig
                     ],
                 ],
                 'cache' => [
-                    'path' => getcwd().'/public/data/cache/html/',
+                    // 'path' => getcwd().'/public/data/cache/html/',
+                    'path' => static::cachepath(),
                 ],
             ],
             'twig' => [
@@ -96,4 +98,17 @@ class ModuleConfig
             ],
         ];
     }
+    
+    public static function cachepath()
+    {
+        return getcwd().'/public/data/cache/html/';       
+    } 
+    
+    public static function themepath($short = false)
+    {
+        if($short){
+            return 'templates/theme';
+        }
+        return getcwd().'/templates/theme';
+    } 
 }

@@ -64,7 +64,8 @@ class CacheAction
             
             // $file = getcwd().'/data/cache/html/'.$lang.'_'.$page.'.html';
             // TODO [IMPROVEMENT]: get from config or pass responsability to a service
-            $cachepath = getcwd().'/public/data/cache/html';
+            // $cachepath = getcwd().'/public/data/cache/html';
+            $cachepath = \Page\ModuleConfig::cachepath();
             $file = $cachepath.'/'.$filename.'.html';
             // var_dump($file);exit(__FILE__.'::'.__LINE__);
             if(!file_exists($file)){
@@ -84,7 +85,9 @@ class CacheAction
                 // $content = file_get_contents(getcwd().'/data/cache/html/en_test.html');
                 
                 $plugin = \RpkPluginManager\PluginChain::getInstance();
-                $params = $plugin->prepareArgs(['template'=> 'templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], 'data' => $pagedb]);
+                $themepath = \Page\ModuleConfig::themepath(true);
+                // $params = $plugin->prepareArgs(['template'=> 'templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], 'data' => $pagedb]);
+                $params = $plugin->prepareArgs(['template'=> $themepath.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], 'data' => $pagedb]);
                 $plugin->trigger('page::cache-render.pre', $params);
                 
                 // $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);

@@ -184,7 +184,8 @@ class Paginator
         $listTpl = 'templates'.$paginator['page_templates.path'].'::'.$paginator['page_templates.name'];
         
         // determine sublist dir
-        $cachepath = getcwd().'/public/data/cache/html';
+        // $cachepath = $this->pageConf['cache']['path'];
+        $cachepath = \Page\ModuleConfig::cachepath();
         $sublistdir = $cachepath . $Params['data']['path'].'/'. $Params['data']['slug'];
         // var_dump($sublistdir);exit(__FILE__.'::'.__LINE__);
         
@@ -317,7 +318,8 @@ class Paginator
             return;
         }
         
-        $cachepath = getcwd().'/public/data/cache/html';
+        // $cachepath = $this->pageConf['cache']['path'];
+        $cachepath = \Page\ModuleConfig::cachepath();
         
         foreach($lists as $list){
             

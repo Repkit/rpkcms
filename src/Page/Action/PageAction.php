@@ -265,7 +265,8 @@ class PageAction
             
             // delete cached file
             // TODO [IMPROVEMENT]: get from config or pass responsability to a service
-            $cachepath = getcwd().'/public/data/cache/html';
+            // $cachepath = getcwd().'/public/data/cache/html';
+            $cachepath = \Page\ModuleConfig::cachepath();
             $data['page'] = $this->storage->pageById($id);
             // $file = $cachepath.$post['slug'].'.html';
             $file = $cachepath. $data['page']['path'].'/'.$data['page']['slug'].'.html';
