@@ -181,7 +181,9 @@ class Paginator
         $Params['data']['paginator']['next'] = $Params['data']['slug'].'/'.$paginator['name'].'-2'.'.html';
         
         // get sublists template
-        $listTpl = 'templates'.$paginator['page_templates.path'].'::'.$paginator['page_templates.name'];
+        // $listTpl = 'templates'.$paginator['page_templates.path'].'::'.$paginator['page_templates.name'];
+        $themepath = \Page\ModuleConfig::themepath(true);
+        $listTpl = $themepath.$paginator['page_templates.path'].'::'.$paginator['page_templates.name'];
         
         // determine sublist dir
         // $cachepath = $this->pageConf['cache']['path'];
