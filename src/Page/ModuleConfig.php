@@ -107,7 +107,7 @@ class ModuleConfig
     public static function themepath($short = false)
     {
         if($short){
-            return 'templates/theme';
+            return 'theme';
         }
         return getcwd().'/templates/theme';
     } 
