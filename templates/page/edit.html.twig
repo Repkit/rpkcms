@@ -245,7 +245,20 @@ function processForm() {
 <script src="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.js"></script>
 <script>
     $('#page_content').summernote({
-		height: "210px"
+		height: "210px",
+	    toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'strikethrough', 'subscript', 'superscript', 'clear']],
+            ['fontname', ['fontname']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video', 'hr']],
+            ['height', ['height']],
+            ['view', ['fullscreen', 'codeview', 'help']]
+        ],
+        fontSizes: ['8', '9', '10', '11', '12', '14', '16', '18', '20', '21', '24', '26', '28', '36', '42', '48' , '63', '84']
 	});
 	
 	$('#preview').click(function(event){
