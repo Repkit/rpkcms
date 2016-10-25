@@ -9,6 +9,7 @@ return [
                 'Page\Action\PageAction' => ['admin'],
                 'Page\Action\TemplateAction' => ['admin'],
                 'Page\Action\CategoryAction' => ['admin'],
+                'Page\Action\StatusAction' => ['admin'],
                 'Auth\Action\RoleAction' => ['admin'],
                 'Auth\Action\UserAction' => ['admin']
             ],

@@ -19,6 +19,8 @@ class ModuleConfig
                         Action\CategoryFactory::class,
                     Action\TemplateAction::class =>
                         Action\TemplateFactory::class,
+                    Action\StatusAction::class =>
+                        Action\StatusFactory::class,    
                     TwigExtension::class =>
                         TwigExtensionFactory::class,    
                 ],
@@ -54,6 +56,12 @@ class ModuleConfig
                     'name' => 'admin.page-template',
                     'path' => '/admin/page-template[/{action:add|edit}[/{id}]]',
                     'middleware' => Action\TemplateAction::class,
+                    'allowed_methods' => ['GET','POST'],
+                ],
+                'admin-page-statis' => [
+                    'name' => 'admin.page-status',
+                    'path' => '/admin/page-status[/{action:add|edit}[/{id}]]',
+                    'middleware' => Action\StatusAction::class,
                     'allowed_methods' => ['GET','POST'],
                 ],
             ],

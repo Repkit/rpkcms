@@ -1,0 +1,33 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Add new status{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+
+<form method="post" action="{{ url('admin.page-status', {'action': 'add'}) }}">
+    
+    {#name#}
+    <div class="form-group">
+        <label for="status_name">Name</label>
+        <input type="text" name="name" class="form-control" id="status_name" placeholder="name" required>
+    </div>
+    
+    {#state#}
+    <div class="form-group">
+        <label for="status_state">State</label>
+        <select id="status_state" class="form-control" name="state">
+          <option value="1">Active</option>
+          <option value="0">Inactive</option>
+        </select>
+    </div>
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}

@@ -33,7 +33,7 @@ class TemplateAction
     public function indexAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
     {
         $data = [];
-        $path = $Request->getOriginalRequest()->getUri()->getPath();
+        // $path = $Request->getOriginalRequest()->getUri()->getPath();
         $pagdata = $this->getPaginationDataFromRequest($Request);
         
         $entities = $this->storage->fetchAll('page_templates');

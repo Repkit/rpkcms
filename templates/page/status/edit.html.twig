@@ -1,0 +1,40 @@
+{% extends '@layout/default.html.twig' %}
+
+{% block title %}Edit status: {{page_status.name}}{% endblock %}
+
+{% block content %}
+
+{% if messages is defined%}
+    {% for message in messages %}
+        <div class="alert alert-danger" role="alert">{{message}}</div>
+    {% endfor %}
+{% endif %}
+
+<form method="post" action="{{ url('admin.page-status', {'action': 'edit'}) }}">
+    
+    <input type="hidden" name="id" id="status_id" value="{{page_status.id}}" required>
+    {#name#}
+    <div class="form-group">
+        <label for="status_name">Name</label>
+        <input type="text" name="name" class="form-control" id="status_name" value="{{page_status.name}}" placeholder="name" required>
+    </div>
+  
+    <div class="form-group">
+        <label for="status_state">State</label>
+        <select id="status_state" class="form-control" name="state">
+          {% if page_status.state %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+    {#init parent - used to check if parent has been modified to delete cache for all pages in order to regenerate new url#}
+    {#<input type="hidden" name="initState" value="{{ page_status.state}}" required>#}
+  
+    <button type="submit" class="btn btn-default">Submit</button>
+</form>
+
+{% endblock %}
