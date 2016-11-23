@@ -199,8 +199,13 @@
             
             {#sort-by#}
             <div class="form-group">
-                <label for="name">Sort by</label>
-                <input type="text" name="paginator[sortBy]" class="form-control" id="paginator-sortBy" placeholder="Sort by" required disabled="disabled">
+                <label for="paginator-sortBy">Sort by</label>
+                <select id="paginator-sortBy" class="form-control" name="paginator[sortBy]" required disabled="disabled">
+                    <option value="pages.creationDate">Page creation date</option>
+                    <option value="pages.categoryId">Page category</option>
+                    <option value="pages.templateId">Page template</option>
+                    <option value="pages.statusId">Page status</option>
+                </select>
             </div>
             
             {#sort order#}
@@ -221,12 +226,111 @@
                 </select>
             </div>
             
+            {#where#}
+            <div id="container-paginator-condition">
+                {#placeholder for paginator conditions#}
+            </div>
+            
+            {#new condition#}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-add-condition">
+                    Add condition
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
+            </div>
+            
+            <input id="paginator-condition-changed" type="hidden" name="paginator[where][changed]" value="0" disabled="disabled">
+            
         </div>
         
     </div>
   
     <button type="submit" class="btn btn-success">Submit</button>
 </form>
+
+{#new condition template#}
+<div id="paginator-condition-template" class="panel panel-default panel-paginator-condition" style="display:none;">
+    <div class="panel-heading">
+        <button type="submit" class="btn btn-danger btn-remove-condition">
+            New Condition
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </div>
+    <div class="panel-body">
+        {#field#}
+        <div class="form-group">
+            <label>Field</label>
+            <select class="form-control paginator-condition" name="paginator[where][field][]" onchange="paginator_change_field(event);">
+                <option value="pages.categoryId">Page category</option>
+                <option value="pages.templateId">Page template</option>
+                <option value="pages.statusId">Page status</option>
+            </select>
+        </div>
+        
+        {#operation#}
+        <div class="form-group">
+            <label>Operation</label>
+            <select class="form-control paginator-condition" name="paginator[where][operation][]">
+                <option value="equalTo">equal to (=)</option>
+                <option value="notEqualTo">not equal to (!=)</option>
+                <option value="lessThanGreaterThan">less than greater than (<>)</option>
+                <option value="lessThanOrEqualTo">less than or equal to (<=)</option>
+                <option value="greaterThanOrEqualTo">greater than or equal to (>=)</option>
+                {#<option value="in">in</option>#}
+                {#<option value="notIn">not in</option>#}
+                {#<option value="like">like</option>#}
+                {#<option value="notLike">not like</option>#}
+                {#<option value="isNull">is null</option>#}
+                {#<option value="isNotNull">is not null</option>#}
+                {#<option value="between">between</option>#}
+                {#<option value="notBetween">not between</option>#}
+            </select>
+        </div>
+        
+        {#value#}
+        <div class="form-group paginator-condition-value">
+            {#category selector#}
+            <label>Value</label>
+            <select class="form-control paginator-condition pages-categoryId" name="paginator[where][value][]">
+                <option value="0">none</option>
+                {% for idx, category in page_categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            
+            {#template selector#}
+            <select class="form-control paginator-condition pages-templateId" name="paginator[where][value][]" disabled="disabled" style="display:none;">
+                <option value="0">none</option>
+                {% for idx,template in page_templates %}
+                    <option value="{{ template.id }}">{{ template.name }} - [{{ template.path }}]</option>
+                {% endfor %}
+            </select>
+            
+            {#status selector#}
+            <select class="form-control paginator-condition pages-statusId" name="paginator[where][value][]" disabled="disabled" style="display:none;">
+                <option value="0">none</option>
+                {% for idx, status in page_statuses %}
+                        <option value="{{ status.id }}">{{ status.name }}</option>
+                    {% endfor %}
+            </select>        
+        </div>
+        
+        {#type#}
+        <div class="form-group">
+            <label>Type</label>
+            <select class="form-control paginator-condition" name="paginator[where][type][]">
+              <option value="AND">And</option>
+              <option value="OR">Or</option>
+            </select>
+        </div>
+        
+        {#nest level#}
+        <div class="form-group">
+            <label>Nest level</label>
+            <input type="text" name="paginator[where][nestLevel][]" class="form-control paginator-condition" required pattern="^[0-9]+$">
+        </div>
+    </div>
+</div>
 
 {#<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>#}
 <script>
@@ -335,6 +439,32 @@ function processForm() {
               listTplElm.options[i].selected = true;
             }
         }
+        
+        // paginator remove condition
+        $(document).on('click', '.btn-remove-condition', function(e) {
+            e.preventDefault();
+            $(this).parents('.panel-paginator-condition').remove();
+            
+            // mark condition as changed
+            document.getElementById('paginator-condition-changed').value=1;
+            
+            return false;
+        }).on('click', '.btn-add-condition', function(e) {
+            e.preventDefault();
+            
+            var condtpl = document.getElementById("paginator-condition-template");
+            var newcond = condtpl.cloneNode(true);
+            // newcond.setAttribute('id','paginator-condition-template-new1');
+            newcond.removeAttribute('id');
+            newcond.removeAttribute('style');
+            var contcond = document.getElementById("container-paginator-condition");
+            contcond.appendChild(newcond);
+            
+            // mark condition as changed
+            document.getElementById('paginator-condition-changed').value=1;
+            
+            return false;
+        });
     	
     });
     
@@ -346,13 +476,48 @@ function paginator(event) {
       document.getElementById('paginator-itemsNumber').removeAttribute("disabled");
       document.getElementById('paginator-sortBy').removeAttribute("disabled");
       document.getElementById('paginator-sortOrder').removeAttribute("disabled");
+      document.getElementById('paginator-condition-changed').removeAttribute("disabled");
   }else{
       document.getElementById('paginator-name').setAttribute("disabled", "disabled");
       document.getElementById('paginator-listTemplate').setAttribute("disabled", "disabled");
       document.getElementById('paginator-itemsNumber').setAttribute("disabled", "disabled");
       document.getElementById('paginator-sortBy').setAttribute("disabled", "disabled");
       document.getElementById('paginator-sortOrder').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-condition-changed').setAttribute("disabled", "disabled");
   }
+}
+
+// paginator change field
+function paginator_change_field(event) {
+    // var valueContainer = event.target.parentNode.parentNode.parentNode;
+    if((valueContainer = parentByClassName(event.target.parentNode, 'panel panel-default panel-paginator-condition'))){
+        var condselectors = valueContainer.getElementsByTagName('select');
+        var targetvalue = event.target.value.replace(/\./g,'-');
+        for(i=0; i<condselectors.length;i++){
+            if(condselectors[i].className == 'form-control paginator-condition '+targetvalue){
+                condselectors[i].removeAttribute('style');
+                condselectors[i].removeAttribute('disabled');
+            }else if(condselectors[i].className != 'form-control paginator-condition'){
+                condselectors[i].setAttribute('style','display:none');
+                condselectors[i].setAttribute('disabled','disabled');
+            }
+        }
+    }
+}
+
+function parentByClassName(el, className){
+    var parent = el.parentNode;
+    
+    while(parent.className != className){
+        parent = parent.parentNode;
+    }
+    
+    if(parent.className == className){
+        return parent;
+    }
+    
+    return false;
+    
 }
 </script>
 {% endblock %}

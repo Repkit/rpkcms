@@ -103,6 +103,16 @@ class Paginator
             return;
         }
         
+        $paginatorCondSql = " SELECT `id`, `field`, `operation`, `value`, `type`, `paginatorid`, `nestLevel` 
+                        FROM `page_paginator_conditions` 
+                        WHERE `paginatorid` = :paginatorid ";
+        
+        $paginatorConditions = $this->storage->query($paginatorCondSql,[':paginatorid' => $paginator['id']]);
+        
+        if($paginatorConditions){
+            $paginator['where'] = $paginatorConditions->fetchAll(\PDO::FETCH_ASSOC);;
+        }
+        
         // inject paginator settings from storage
         $Params['data']['page']['paginator'] = $paginator;
     }
@@ -132,10 +142,16 @@ class Paginator
         
         // $paginator = $this->storage->fetch('page_paginator', $Params['data']['id'], 'pageId');
         $query = "  select page_paginator.*, page_templates.path as `page_templates.path` , page_templates.name as `page_templates.name`
+                    , page_paginator_conditions.field, page_paginator_conditions.operation, page_paginator_conditions.value
+                    , count(page_paginator_conditions.id) as conditions
                     from page_paginator 
                     inner join page_templates 
                         on page_paginator.listTemplateId = page_templates.id 
-                    where page_paginator.pageId = :id";
+                    left join page_paginator_conditions
+	                    on page_paginator.id = page_paginator_conditions.paginatorId    
+                    where page_paginator.pageId = :id
+                    group by page_paginator_conditions.paginatorId";
+                    
         $select = $this->storage->query($query,[':id' => $Params['data']['id']]);
         if($select){
             $paginator = $select->fetch(\PDO::FETCH_ASSOC);
@@ -148,6 +164,90 @@ class Paginator
         
         // based on paginator settings we get the list of pages
         $where = 'WHERE pages.state = 1 AND pages.id != '.$Params['data']['id'];
+        // if there are multiple conditions
+        if($paginator['conditions'] > 1)
+        {
+            $condsql = " SELECT `id`, `field`, `operation`, `value`, `type`, `paginatorid`, `nestLevel` 
+                        FROM `page_paginator_conditions` 
+                        WHERE `paginatorid` = :paginatorid 
+                        order by `nestLevel` asc "; 
+            $conditions = $this->storage->query($condsql,[':paginatorid' => $paginator['id']]);
+            if($conditions)
+            {
+                $condlevels = array();
+                foreach($conditions as $index => $condition)
+                {
+                    // var_dump($condition['field']);exit(__FILE__.'::'.__LINE__);
+                    $field = $condition['field'];
+                    $operation = $this->operation($condition['operation']);
+                    $opbegin = $operation['begin'];
+                    $opend = $operation['end'];
+                    $value = $condition['value'];
+                    $lvl = $condition['nestLevel'];
+                    $type = $condition['type'];
+                    if(!isset($condlevels[$lvl]) || empty($condlevels[$lvl])){
+                        $condlevels[$lvl] = array();
+                    }
+                    if(!isset($condlevels[$lvl][$type]) || empty($condlevels[$lvl][$type])){
+                        $condlevels[$lvl][$type] = array();
+                    }
+                    $condlevels[$lvl][$type][] = " $field $opbegin $value $opend ";
+                }
+            }
+            $condwhere = '';
+            $multiplelevels = false;
+            if(count($condlevels) > 1){
+                $multiplelevels = true;
+            }
+            $defaultlvl = 0;
+            // var_dump($condlevels);exit(__FILE__.'::'.__LINE__);
+            foreach($condlevels as $lvl => $condlvl)
+            {
+                // var_dump($lvl, $condlvl);
+                if($lvl > $defaultlvl)
+                {
+                    $condtypes = array_keys($condlvl);
+                    $joincond = reset($condtypes);
+                    $condwhere .= ' ' . $joincond . ' ';
+                }
+                $defaultlvl = $lvl;
+                
+                if($multiplelevels) {
+                    $condwhere .= '(';
+                }
+                
+                $iteration = 0;
+                foreach($condlvl as $glue => $gluecond)
+                {
+                    // var_dump($glue, $gluecond);
+                    if($lvl = $defaultlvl)
+                    {
+                        if($iteration > 0){
+                            $condwhere .= $glue;
+                        }else{
+                            $iteration ++;
+                        }
+                    }
+                    $condwhere .= implode($glue, $gluecond);
+                }
+                if($multiplelevels) {
+                    $condwhere .= ')';
+                }
+                
+            }
+            // var_dump($condwhere);exit(__FILE__.'::'.__LINE__);
+            $where .= " AND ($condwhere)"; 
+        }
+        else
+        {
+            $field = $paginator['field'];
+            $operation = $this->operation($paginator['operation']);
+            $opbegin = $operation['begin'];
+            $opend = $operation['end'];
+            $value = $paginator['value'];
+            $where .= " AND $field $opbegin $value $opend"; 
+        }
+        // var_dump($where);exit(__FILE__.'::'.__LINE__);
         
         if(!empty($paginator['sortBy'])){
             $sort = $paginator['sortBy'] . ' ' . $paginator['sortOrder'];
@@ -157,19 +257,21 @@ class Paginator
         
         $select = "CALL `fetchAllPages` (:where, :orderby, :offset, :limit); ";
         $selectparams = [':where' => $where, ':orderby' => $sort, ':offset' => 0, ':limit' => PHP_INT_MAX];
+        // var_dump($selectparams);exit(__FILE__.'::'.__LINE__);
         
         $select = $this->storage->query($select, $selectparams);
         $pages = array();
         do {
             $pages = $select->fetchAll();
         } while ($select->nextRowset() && $select->columnCount());
+        // var_dump($pages);exit(__FILE__.'::'.__LINE__);
         
         $count = count($pages);
         $nrpages = ceil($count/$paginator['itemsNumber']);
         
         // alter the data to be used in the main page template
         $Params['data']['paginator'] = [];
-        $Params['data']['paginator']['pages'] = array_slice($pages,0,$paginator['itemsNumber']);
+        $Params['data']['paginator']['pages'] = array_slice($pages, 0, $paginator['itemsNumber']);
         $Params['data']['paginator']['count'] = $nrpages;
         // var_dump($Params['data']);exit(__FILE__.'::'.__LINE__);
         
@@ -285,7 +387,8 @@ class Paginator
     
     private function save($id, $data)
     {
-        
+        // var_dump($data);exit(__FILE__.'::'.__LINE__);
+           
         // if disabled and not present yet we don't update anything
         if(!$data['state'] && empty($data['id'])){
             return;
@@ -293,13 +396,33 @@ class Paginator
         
         $data['pageId'] = $id;
         
+        if(!empty($data['where'])){
+            $conditions = $data['where'];
+            unset($data['where']);
+        }
+        
         // if id is present it means it exists then we must update
         if(!empty($data['id'])){
+            
             $this->storage->update('page_paginator', $data, ['id' => $data['id']]);
+            $paginatorId = $data['id'];
+            
             // on update regenerate all lists
             // $this->regenerate($data);
+            
         }else{
-            $this->storage->insert('page_paginator', $data);
+            
+            if(!isset($data['creationDate']) || empty($data['creationDate'])){
+                $data['creationDate'] = date('Y-m-d H:i:s');
+            }
+            $paginatorId = $this->storage->insert('page_paginator', $data);
+            
+        }
+        
+        if(!empty($conditions)){
+            // save paginator conditions
+            $this->saveConditions($paginatorId, $conditions);
+            unset($conditions);
         }
     }
     
@@ -328,7 +451,9 @@ class Paginator
             $sublistdir = $cachepath . $list['path'].'/'. $list['slug'];
             
             // delete main list
-            unlink($sublistdir.'.html');
+            if(file_exists($sublistdir.'.html')){
+                unlink($sublistdir.'.html');    
+            }
             
             // delete sublists
             if(is_dir($sublistdir)){
@@ -339,6 +464,131 @@ class Paginator
                 
             }
             
+        }
+    }
+    
+    private function saveConditions($Pid, $Conditions)
+    {
+        // if there are no modification marked by changed flag do nothing
+        if(!isset($Conditions['changed']) || empty($Conditions['changed'])){
+            return true;
+        }
+        unset($Conditions['changed']);
+        
+        $deleted = $this->storage->delete('page_paginator_conditions', ['paginatorId' => $Pid]);
+        if(!$deleted){
+            throw new \Exception('Could not delete old conditions');
+        }
+        
+        try
+        {
+            
+            // field
+            if(!isset($Conditions['field']) || empty($Conditions['field'])){
+                throw new \Exception('Field is required');
+            }
+            // operation
+            if(!isset($Conditions['operation']) || empty($Conditions['operation'])){
+                throw new \Exception('Operation is required');
+            }
+            // value
+            if(!isset($Conditions['value']) || empty($Conditions['value'])){
+                throw new \Exception('Value is required');
+            }
+            // type
+            if(!isset($Conditions['type']) || empty($Conditions['type'])){
+                throw new \Exception('Type is required');
+            }
+            // nestLevel
+            if(!isset($Conditions['nestLevel']) || empty($Conditions['nestLevel'])){
+                throw new \Exception('Nest level is required');
+            }
+        
+        }
+        catch(\Exception $e){
+            // there is nothing to persist - maybe all conditions where removed
+            return true;
+        }
+        
+        $fields = $Conditions['field'];
+        $operations = $Conditions['operation'];
+        $values = $Conditions['value'];
+        $types = $Conditions['type'];
+        $levels = $Conditions['nestLevel'];
+        
+        if((count($fields) != count($operations)) || (count($operations) != count($values)) || (count($values) != count($types)) || (count($types) != count($levels))){
+            throw new \Exception ('Count of elements differ!');
+        }
+        
+        foreach($fields as $idx => $field)
+        {
+            $row = [];
+            $row['field'] = $field;
+            $row['operation'] = $operations[$idx];
+            $row['value'] = $values[$idx];
+            $row['type'] = $types[$idx];
+            $row['paginatorId'] = $Pid;
+            $row['nestLevel'] = $levels[$idx];
+            
+            $this->storage->insert('page_paginator_conditions', $row);
+            
+            unset($row);
+        }
+        
+        return true;
+    }
+    
+    /**
+    * transform operation from text to operation
+    * @param $operation string
+    * return array('begin' => 'in (', 'end' => ')');
+    */
+    private function operation($operation)
+    {
+        switch ($operation) {
+            case 'equalTo':
+                return array('begin' => ' = ', 'end' => '');
+                break;
+            case 'notEqualTo':
+                return array('begin' => ' != ', 'end' => '');
+                break;
+            case 'lessThanGreaterThan':
+                return array('begin' => ' <> ', 'end' => '');
+                break;
+            case 'lessThanOrEqualTo':
+                return array('begin' => ' <= ', 'end' => '');
+                break;
+            case 'greaterThanOrEqualTo':
+                return array('begin' => ' >= ', 'end' => '');
+                break;
+            case 'like':
+                return array('begin' => ' like ', 'end' => '');
+                break;
+            case 'notLike':
+                return array('begin' => ' not like ', 'end' => '');
+                break;
+            case 'isNull':
+                return array('begin' => ' is null ', 'end' => '');
+                break;
+            case 'isNotNull':
+                return array('begin' => ' is not null ', 'end' => '');
+                break;
+            case 'in':
+                return array('begin' => ' in (', 'end' => ')');
+                break;
+            case 'notIn':
+                return array('begin' => ' not in (', 'end' => ')');
+                break;
+            case 'between':
+                return array('begin' => ' between ', 'end' => '');
+                break;
+            case 'notBetween':
+                return array('begin' => ' not between ', 'end' => '');
+                break;
+            
+            default:
+                throw new \Exception ("Operation not supported");
+                break;
         }
     }
     

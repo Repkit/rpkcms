@@ -62,7 +62,7 @@ class PdoAdapter implements StorageInterface
     //insert query
 	/*
 	* syntax storage->insert(table name, insert data array, duplicated field checking array)
-	* $inserted = $db->insert('users', array('email'=>'c@yahoo.com', 'nickname'=> 'Mr. C', 'password' => '159159'), array('email'));
+	* $inserted = $db->insert('users', array('email'=>'repkit@yahoo.com', 'nickname'=> 'JB', 'password' => '212121'), array('email'));
 	*/
     public function insert($Name, array $Data = [], array $Unique = []) 
     {

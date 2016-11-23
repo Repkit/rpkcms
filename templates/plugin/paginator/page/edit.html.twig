@@ -244,8 +244,13 @@
             
             {#sort-by#}
             <div class="form-group">
-                <label for="name">Sort by</label>
-                <input type="text" name="paginator[sortBy]" class="form-control" id="paginator-sortBy" placeholder="Sort by" value="{{page.paginator.sortBy|default('')}}" required {{page.paginator.state ?'':'disabled="disabled"'}}>
+                <label for="paginator-sortBy">Sort by</label>
+                <select id="paginator-sortBy" class="form-control" name="paginator[sortBy]" required {{page.paginator.state ?'':'disabled="disabled"'}}>
+                    <option value="pages.creationDate" {{ page.paginator.sortBy == 'pages.creationDate' ? ' selected ' : '' }}>Page creation date</option>
+                    <option value="pages.categoryId" {{ page.paginator.sortBy == 'pages.categoryId' ? ' selected ' : '' }}>Page category</option>
+                    <option value="pages.templateId" {{ page.paginator.sortBy == 'pages.templateId' ? ' selected ' : '' }}>Page template</option>
+                    <option value="pages.statusId" {{ page.paginator.sortBy == 'pages.statusId' ? ' selected ' : '' }}>Page status</option>
+                </select>
             </div>
             
             {#sort order#}
@@ -276,6 +281,97 @@
                 </select>
             </div>
             
+            {#where#}
+            <div id="container-paginator-condition">
+                {#if conditions where defined#}
+                {% if page.paginator.where is defined and page.paginator.where %}
+                
+                    {% set prevlvl = -1 %}
+                    <div class="panel panel-default panel-paginator-condition">
+                        <div class="panel-heading">
+                            <button type="submit" class="btn btn-danger btn-remove-condition">
+                                Remove condition
+                                <span class="glyphicon glyphicon-remove"></span>
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            {% for condidx, condition in page.paginator.where%}
+                            {#field#}
+                            {% set condvalue = condition.value %}
+                            {% if condition.field == 'pages.categoryId' %}
+                                {% set field = 'Page category' %}
+                                {% for idx, category in page_categories if category.id == condition.value %}
+                                    {% set condvalue = category.name %}
+                                {% endfor %}
+                            {% elseif condition.field == 'pages.templateId' %}
+                                {% set field = 'Page template' %}
+                                {% for idx,template in page_templates if template.id == condition.value %}
+                                    {% set condvalue = template.name %}
+                                {% endfor %}
+                            {% elseif condition.field == 'pages.statusId' %}
+                                {% set field = 'Page status' %}
+                                {% for idx, status in page_statuses if status.id == condition.value %}
+                                    {% set condvalue = status.name %}
+                                {% endfor %}
+                            {% endif %}
+                            
+                            {#operation#}
+                            {% if condition.operation == 'equalTo' %}
+                                {% set operation = 'equal to' %}
+                            {% elseif condition.operation == 'notEqualTo' %}
+                                {% set operation = 'not equal to' %}
+                            {% elseif condition.operation == 'lessThanGreaterThan' %}
+                                {% set operation = 'less than greater than' %}
+                            {% elseif condition.operation == 'lessThanOrEqualTo' %}
+                                {% set operation = 'less than or equal to' %}
+                            {% elseif condition.operation == 'greaterThanOrEqualTo' %}
+                                {% set operation = 'greater than or equal to' %}
+                            {% endif %}
+                            
+                            {#value#}
+                            
+                            
+                            {#mindfuck logic#}
+                            {% if condition.nestLevel != prevlvl %}
+                                {% if -1 != prevlvl %}    
+                                </div> {#this div is closing tag for <div class="alert alert-info" role="alert">#}
+                                <div class="alert alert-warning" role="alert" style="text-align:center;">{{ condition.type }}</div>
+                                {% endif %}
+                            <div class="alert alert-info" role="alert">
+                            {% elseif condidx != 0 %}
+                            <span class="label label-warning">{{ condition.type }}</span> 
+                            {% endif %}
+                            <strong>{{ field }}</strong> <i>{{ operation }}</i> <strong>{{ condvalue }}</strong>
+                            
+                            {% set prevlvl = condition.nestLevel %}
+                            
+                            {#input hidden fields#}
+                            <input type="hidden" name="paginator[where][field][{{condidx}}]" value="{{ condition.field }}" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                            <input type="hidden" name="paginator[where][operation][{{condidx}}]" value="{{ condition.operation }}" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                            <input type="hidden" name="paginator[where][value][{{condidx}}]" value="{{ condition.value }}" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                            <input type="hidden" name="paginator[where][type][{{condidx}}]" value="{{ condition.type }}" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                            <input type="hidden" name="paginator[where][nestLevel][{{condidx}}]" value="{{ condition.nestLevel }}" {{page.paginator.state ?'':'disabled="disabled"'}}>
+                            
+                            {% endfor %}
+                            
+                            </div> {#this div is closing tag for <div class="alert alert-info" role="alert">#}
+                        </div>
+                    </div>
+                
+                {% endif %}
+                
+            </div>
+            
+            {#new condition#}
+            <div class="form-group">
+                <button type="submit" class="btn btn-primary btn-add-condition">
+                    Add condition
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
+            </div>
+            
+            <input id="paginator-condition-changed" type="hidden" name="paginator[where][changed]" value="0" {{page.paginator.state ?'':'disabled="disabled"'}}>
+            
         </div>
         
     </div>
@@ -283,6 +379,90 @@
     <button type="submit" class="btn btn-success">Submit</button>
     <button id="preview" type="button" class="btn btn-warning">Preview</button>
 </form>
+
+{#new condition template#}
+<div id="paginator-condition-template" class="panel panel-default panel-paginator-condition" style="display:none;">
+    <div class="panel-heading">
+        <button type="submit" class="btn btn-danger btn-remove-condition">
+            New Condition
+            <span class="glyphicon glyphicon-remove"></span>
+        </button>
+    </div>
+    <div class="panel-body">
+        {#field#}
+        <div class="form-group">
+            <label>Field</label>
+            <select class="form-control paginator-condition" name="paginator[where][field][]" onchange="paginator_change_field(event);">
+                <option value="pages.categoryId">Page category</option>
+                <option value="pages.templateId">Page template</option>
+                <option value="pages.statusId">Page status</option>
+            </select>
+        </div>
+        
+        {#operation#}
+        <div class="form-group">
+            <label>Operation</label>
+            <select class="form-control paginator-condition" name="paginator[where][operation][]">
+                <option value="equalTo">equal to (=)</option>
+                <option value="notEqualTo">not equal to (!=)</option>
+                <option value="lessThanGreaterThan">less than greater than (<>)</option>
+                <option value="lessThanOrEqualTo">less than or equal to (<=)</option>
+                <option value="greaterThanOrEqualTo">greater than or equal to (>=)</option>
+                {#<option value="in">in</option>#}
+                {#<option value="notIn">not in</option>#}
+                {#<option value="like">like</option>#}
+                {#<option value="notLike">not like</option>#}
+                {#<option value="isNull">is null</option>#}
+                {#<option value="isNotNull">is not null</option>#}
+                {#<option value="between">between</option>#}
+                {#<option value="notBetween">not between</option>#}
+            </select>
+        </div>
+        
+        {#value#}
+        <div class="form-group paginator-condition-value">
+            {#category selector#}
+            <label>Value</label>
+            <select class="form-control paginator-condition pages-categoryId" name="paginator[where][value][]">
+                <option value="0">none</option>
+                {% for idx, category in page_categories %}
+                    <option value="{{ category.id }}">{{ category.name }}</option>
+                {% endfor %}
+            </select>
+            
+            {#template selector#}
+            <select class="form-control paginator-condition pages-templateId" name="paginator[where][value][]" disabled="disabled" style="display:none;">
+                <option value="0">none</option>
+                {% for idx,template in page_templates %}
+                    <option value="{{ template.id }}">{{ template.name }} - [{{ template.path }}]</option>
+                {% endfor %}
+            </select>
+            
+            {#status selector#}
+            <select class="form-control paginator-condition pages-statusId" name="paginator[where][value][]" disabled="disabled" style="display:none;">
+                <option value="0">none</option>
+                {% for idx, status in page_statuses %}
+                    <option value="{{ status.id }}">{{ status.name }}</option>
+                {% endfor %}
+            </select>        
+        </div>
+        
+        {#type#}
+        <div class="form-group">
+            <label>Type</label>
+            <select class="form-control paginator-condition" name="paginator[where][type][]">
+              <option value="AND">And</option>
+              <option value="OR">Or</option>
+            </select>
+        </div>
+        
+        {#nest level#}
+        <div class="form-group">
+            <label>Nest level</label>
+            <input type="text" name="paginator[where][nestLevel][]" class="form-control paginator-condition" required pattern="^[0-9]+$">
+        </div>
+    </div>
+</div>
 
 {#<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.2.3/ace.js" type="text/javascript" charset="utf-8"></script>#}
 <script>
@@ -395,6 +575,32 @@ function processForm() {
               listTplElm.options[i].selected = true;
             }
         }
+        
+        // paginator remove condition
+        $(document).on('click', '.btn-remove-condition', function(e) {
+            e.preventDefault();
+            $(this).parents('.panel-paginator-condition').remove();
+            
+            // mark condition as changed
+            document.getElementById('paginator-condition-changed').value=1;
+            
+            return false;
+        }).on('click', '.btn-add-condition', function(e) {
+            e.preventDefault();
+            
+            var condtpl = document.getElementById("paginator-condition-template");
+            var newcond = condtpl.cloneNode(true);
+            // newcond.setAttribute('id','paginator-condition-template-new1');
+            newcond.removeAttribute('id');
+            newcond.removeAttribute('style');
+            var contcond = document.getElementById("container-paginator-condition");
+            contcond.appendChild(newcond);
+            
+            // mark condition as changed
+            document.getElementById('paginator-condition-changed').value=1;
+            
+            return false;
+        });
 
     });
     
@@ -406,13 +612,66 @@ function paginator(event) {
       document.getElementById('paginator-itemsNumber').removeAttribute("disabled");
       document.getElementById('paginator-sortBy').removeAttribute("disabled");
       document.getElementById('paginator-sortOrder').removeAttribute("disabled");
+      document.getElementById('paginator-condition-changed').removeAttribute("disabled");
+    {% if page.paginator.where is defined and page.paginator.where %}
+        {% for condidx, condition in page.paginator.where%}
+        document.getElementById('paginator-where-field-{{condidx}}').removeAttribute("disabled");
+        document.getElementById('paginator-where-operation-{{condidx}}').removeAttribute("disabled");
+        document.getElementById('paginator-where-value-{{condidx}}').removeAttribute("disabled");
+        document.getElementById('paginator-where-type-{{condidx}}').removeAttribute("disabled");
+        document.getElementById('paginator-where-nestlevel-{{condidx}}').removeAttribute("disabled");
+        {% endfor %}
+    {% endif %}
   }else{
       document.getElementById('paginator-name').setAttribute("disabled", "disabled");
       document.getElementById('paginator-listTemplate').setAttribute("disabled", "disabled");
       document.getElementById('paginator-itemsNumber').setAttribute("disabled", "disabled");
       document.getElementById('paginator-sortBy').setAttribute("disabled", "disabled");
       document.getElementById('paginator-sortOrder').setAttribute("disabled", "disabled");
+      document.getElementById('paginator-condition-changed').setAttribute("disabled", "disabled");
+    {% if page.paginator.where is defined and page.paginator.where %}
+        {% for condidx, condition in page.paginator.where%}
+        document.getElementById('paginator-where-field-{{condidx}}').setAttribute("disabled", "disabled");
+        document.getElementById('paginator-where-operation-{{condidx}}').setAttribute("disabled", "disabled");
+        document.getElementById('paginator-where-value-{{condidx}}').setAttribute("disabled", "disabled");
+        document.getElementById('paginator-where-type-{{condidx}}').setAttribute("disabled", "disabled");
+        document.getElementById('paginator-where-nestlevel-{{condidx}}').setAttribute("disabled", "disabled");
+        {% endfor %}
+    {% endif %}
   }
+}
+
+// paginator change field
+function paginator_change_field(event) {
+    // var valueContainer = event.target.parentNode.parentNode.parentNode;
+    if((valueContainer = parentByClassName(event.target.parentNode, 'panel panel-default panel-paginator-condition'))){
+        var condselectors = valueContainer.getElementsByTagName('select');
+        var targetvalue = event.target.value.replace(/\./g,'-');
+        for(i=0; i<condselectors.length;i++){
+            if(condselectors[i].className == 'form-control paginator-condition '+targetvalue){
+                condselectors[i].removeAttribute('style');
+                condselectors[i].removeAttribute('disabled');
+            }else if(condselectors[i].className != 'form-control paginator-condition'){
+                condselectors[i].setAttribute('style','display:none');
+                condselectors[i].setAttribute('disabled','disabled');
+            }
+        }
+    }
+}
+
+function parentByClassName(el, className){
+    var parent = el.parentNode;
+    
+    while(parent.className != className){
+        parent = parent.parentNode;
+    }
+    
+    if(parent.className == className){
+        return parent;
+    }
+    
+    return false;
+    
 }
 
 </script>
