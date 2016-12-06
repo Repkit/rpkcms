@@ -167,14 +167,16 @@ class Paginator
         // if there are multiple conditions
         if($paginator['conditions'] > 1)
         {
+            $condlevels = array();
+            
             $condsql = " SELECT `id`, `field`, `operation`, `value`, `type`, `paginatorid`, `nestLevel` 
                         FROM `page_paginator_conditions` 
                         WHERE `paginatorid` = :paginatorid 
                         order by `nestLevel` asc "; 
             $conditions = $this->storage->query($condsql,[':paginatorid' => $paginator['id']]);
+            
             if($conditions)
             {
-                $condlevels = array();
                 foreach($conditions as $index => $condition)
                 {
                     // var_dump($condition['field']);exit(__FILE__.'::'.__LINE__);
@@ -238,7 +240,7 @@ class Paginator
             // var_dump($condwhere);exit(__FILE__.'::'.__LINE__);
             $where .= " AND ($condwhere)"; 
         }
-        else
+        elseif($paginator['conditions'] == 1)
         {
             $field = $paginator['field'];
             $operation = $this->operation($paginator['operation']);
@@ -587,7 +589,7 @@ class Paginator
                 break;
             
             default:
-                throw new \Exception ("Operation not supported");
+                throw new \Exception ("Operation $operation not supported");
                 break;
         }
     }

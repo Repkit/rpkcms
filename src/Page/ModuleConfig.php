@@ -58,7 +58,7 @@ class ModuleConfig
                     'middleware' => Action\TemplateAction::class,
                     'allowed_methods' => ['GET','POST'],
                 ],
-                'admin-page-statis' => [
+                'admin-page-status' => [
                     'name' => 'admin.page-status',
                     'path' => '/admin/page-status[/{action:add|edit}[/{id}]]',
                     'middleware' => Action\StatusAction::class,

@@ -321,11 +321,17 @@ class PageAction
             $post['page_templates.path'] = $templatedb['path'];
             $post['page_templates.name'] = $templatedb['name'];
         }
+        
+        // load page extra info
+        $post['page_meta'] = $this->storage->fetchAll('page_meta',['pageId'=>$pagedb['id']]);
+        $post['page_meta_tags'] = $this->storage->fetchAll('page_meta_tags',['pageId'=>$pagedb['id']]);
+        
         $pagedb = \Zend\Stdlib\ArrayUtils::merge($pagedb,$post);
         
         // copy-paste from CacheAction
         // TODO [IMPROVEMENT]: avoid code duplication from CacheAction
-        $content = $this->template->render('templates'.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
+        $themepath = \Page\ModuleConfig::themepath(true);
+        $content = $this->template->render($themepath.$pagedb['page_templates.path'].'::'.$pagedb['page_templates.name'], $pagedb);
         
         return new HtmlResponse($content);
     }
