@@ -23,8 +23,6 @@ class ModuleConfig
                         Action\StatusFactory::class,    
                     TwigExtension::class =>
                         TwigExtensionFactory::class,
-                    \Twig_Environment::class =>
-                        \Zend\Expressive\Twig\TwigEnvironmentFactory::class
                 ],
             ],
             //middleware for sub directories that are not caught by home route
