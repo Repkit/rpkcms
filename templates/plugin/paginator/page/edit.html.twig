@@ -246,10 +246,10 @@
             <div class="form-group">
                 <label for="paginator-sortBy">Sort by</label>
                 <select id="paginator-sortBy" class="form-control" name="paginator[sortBy]" required {{page.paginator.state ?'':'disabled="disabled"'}}>
-                    <option value="pages.creationDate" {{ page.paginator.sortBy == 'pages.creationDate' ? ' selected ' : '' }}>Page creation date</option>
-                    <option value="pages.categoryId" {{ page.paginator.sortBy == 'pages.categoryId' ? ' selected ' : '' }}>Page category</option>
-                    <option value="pages.templateId" {{ page.paginator.sortBy == 'pages.templateId' ? ' selected ' : '' }}>Page template</option>
-                    <option value="pages.statusId" {{ page.paginator.sortBy == 'pages.statusId' ? ' selected ' : '' }}>Page status</option>
+                    <option value="pages.creationDate" {{ page.paginator.sortBy|default('') == 'pages.creationDate' ? ' selected ' : '' }}>Page creation date</option>
+                    <option value="pages.categoryId" {{ page.paginator.sortBy|default('') == 'pages.categoryId' ? ' selected ' : '' }}>Page category</option>
+                    <option value="pages.templateId" {{ page.paginator.sortBy|default('') == 'pages.templateId' ? ' selected ' : '' }}>Page template</option>
+                    <option value="pages.statusId" {{ page.paginator.sortBy|default('') == 'pages.statusId' ? ' selected ' : '' }}>Page status</option>
                 </select>
             </div>
             

@@ -175,9 +175,10 @@ class PageAction
         // return new HtmlResponse($this->template->render('page::add', $data));
         $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
         
-        $response = $Next($Request, $htmlResponse); 
+        // $response = $Next($Request, $htmlResponse); 
         
-        return $response;
+        // return $response;
+        return $htmlResponse;
     }
     
     public function editAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
@@ -300,7 +301,8 @@ class PageAction
         
         $response = $Next($Request, $htmlResponse); 
         
-        return $response;
+        // return $response;
+        return $htmlResponse;
     }
     
     public function previewAction(ServerRequestInterface $Request, ResponseInterface $Response, callable $Next = null)
