@@ -299,7 +299,7 @@ class PageAction
         // return new HtmlResponse($this->template->render('page::edit', $data));
         $htmlResponse = new HtmlResponse($this->template->render($params['template'], $params['data']));
         
-        $response = $Next($Request, $htmlResponse); 
+        // $response = $Next($Request, $htmlResponse); 
         
         // return $response;
         return $htmlResponse;
