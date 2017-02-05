@@ -134,7 +134,7 @@ class CategoryAction
             $oldid = intval($OldParentId);
             $newid = intval($NewParentId);
             if(empty($oldid) || empty($newid)){
-                throw \Exception ('empty data!');
+                throw new \Exception ('empty data!');
             }
             // $cachepath = getcwd().'/public/data/cache/html';
             $cachepath = \Page\ModuleConfig::cachepath();
@@ -152,7 +152,7 @@ class CategoryAction
                 $oldpath = $cachepath.$oldpath['path'].DIRECTORY_SEPARATOR.$OldNme;
                 $newpath = $cachepath.$newpath['path'].DIRECTORY_SEPARATOR.$NewName;
             }else{
-                throw \Exception ('could not determine old path!');
+                throw new \Exception ('could not determine old path!');
             }
             
             if($newpath){
