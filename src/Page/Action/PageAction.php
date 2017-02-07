@@ -190,6 +190,10 @@ class PageAction
             // var_dump($post);exit(__FILE__.'::'.__LINE__);
             unset($post['files']);
             
+            // get old data
+            $oldData = $post['_old'];
+            unset($post['_old']);
+            
             // meta data
             // TODO [IMPROVEMENT]: maybe use a separate middleware that will handle page meta as there are different tables
             //                      use hydrator and put in request parsedBody the inserted id and return next not response
@@ -275,11 +279,34 @@ class PageAction
                  unlink(realpath($file));
             }
             
+            // if the category changed then we must delete old path file
+            if($oldData['categoryId'] != $data['page']['categoryId']){
+                // if no category then file must be generated in base folder
+                if(empty($oldData['categoryId'])){
+                    $file = $cachepath.'/'.$data['page']['slug'].'.html';
+                    if(file_exists($file)){
+                         unlink(realpath($file));
+                    }
+                }else{
+                    // if the category was set then path is needed
+                    /*this is covered because ALWAYS is required base domain example.com/test -> example.com/category/test.html which is basicaly solved by cacheAction. 
+                    EXCEPTION will do if full url will be accessed(indexed url) which will bypass cacheAction*/
+                    $file = $cachepath. $oldData['path'].'/'.$data['page']['slug'].'.html';
+                    if(file_exists($file)){
+                         unlink(realpath($file));
+                    }
+                }
+                
+            }
+            
             return $Response
                 ->withStatus(302)
                 ->withHeader('Location', (string) $url);
         }else{
-            $data['page'] = $this->storage->fetch('pages',$id);
+            // $data['page'] = $this->storage->fetch('pages',$id);
+            
+            // we've replaced fetch with pageById because we need to have page path for old file deletion
+            $data['page'] = $this->storage->pageById($id);
         }
         
         // gather all data required for composing page

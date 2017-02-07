@@ -86,6 +86,10 @@
                         <option value="{{ category.id }}" {{  page.categoryId == category.id ? ' selected ' : '' }}>{{ category.name }}</option>
                     {% endfor %}
                 </select>
+                {#init categoryId - used to check if category has been modified#}
+                <input type="hidden" name="_old[categoryId]" value="{{ page.categoryId }}" required>
+                {#the old page path - used to delete old file#}
+                <input type="hidden" name="_old[path]" value="{{ page.path }}" required>
             </div>
             
             {#access#}
