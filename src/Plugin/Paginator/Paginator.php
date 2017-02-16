@@ -222,7 +222,7 @@ class Paginator
                 foreach($condlvl as $glue => $gluecond)
                 {
                     // var_dump($glue, $gluecond);
-                    if($lvl = $defaultlvl)
+                    if($lvl == $defaultlvl)
                     {
                         if($iteration > 0){
                             $condwhere .= $glue;
