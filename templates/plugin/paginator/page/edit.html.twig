@@ -317,6 +317,8 @@
                                 {% for idx, status in page_statuses if status.id == condition.value %}
                                     {% set condvalue = status.name %}
                                 {% endfor %}
+                            {% else %}
+                                {% set field = condition.field %}
                             {% endif %}
                             
                             {#operation#}
