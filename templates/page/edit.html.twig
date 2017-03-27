@@ -2,7 +2,7 @@
 
 {% block stylesheets %}
 <!-- include summernote css/js-->
-<link href="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.css" rel="stylesheet">
+<link href="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.css" rel="stylesheet">
 
 {% endblock %}
 
@@ -19,6 +19,7 @@
     <li class="active"><a href="#page-tab" data-toggle="tab">Page definition </a></li>
     <li><a href="#page-meta-tab" data-toggle="tab">Extend </a></li>
     <li><a href="#page-meta-tags-tab" data-toggle="tab">Metadata </a></li>
+    {% block content_navTabs %}{% endblock %}
 </ul>
 
 <form id="form" method="post" action="{{ url('admin.page', {'action': 'edit'}) }}" onsubmit="processForm()">
@@ -221,6 +222,8 @@
             
         </div>
         
+        {% block content_tabContent %}{% endblock %}
+        
     </div>
   
     <button type="submit" class="btn btn-success">Submit</button>
@@ -246,7 +249,7 @@ function processForm() {
 {% endblock %}
 
 {% block javascript %}
-<script src="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.1/summernote.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/summernote/0.8.2/summernote.js"></script>
 <script>
     $('#page_content').summernote({
 		height: "210px",
@@ -320,6 +323,7 @@ function processForm() {
     		e.preventDefault();
     		return false;
     	});
+    	{% block javascript_documentReady %}{% endblock %}
     });
 
 

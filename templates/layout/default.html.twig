@@ -91,7 +91,9 @@
                                 <li><a href="/admin/auth/user">Users</a></li>
                             </ul>
                         </li>
+                        {% block menu_loggedin %}{% endblock %}
                         {% endif %}
+                        {% block menu_loggedout %}{% endblock %}
                     </ul>
                     
                     <!--login menu-->
@@ -110,6 +112,7 @@
                         <li class=""><a href="/auth/logout">Logout</a></li>
                         {% else %}
                         <li class=""><a href="/auth/google?redirect=/admin/page">Login with google</a></li>
+                        {% block menu_loggin_with %}{% endblock %}
                         {% endif %}
                     </ul>
                 </div>
