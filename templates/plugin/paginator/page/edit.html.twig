@@ -260,9 +260,8 @@
     var listtemplates = listTplElm.innerHTML + pagetemplates;
     
     listTplElm.innerHTML = listtemplates;
-    console.log('coco');
     
-    {#var selectedListTpl = document.getElementById('_tmp_paginator_list_templateid').value;
+    var selectedListTpl = document.getElementById('_tmp_paginator_list_templateid').value;
     
     // listTplElm.options[parseInt(selectedListTpl.value)-1].selected = true;
     
@@ -270,7 +269,7 @@
         if(listTplElm.options[i].value == selectedListTpl){
           listTplElm.options[i].selected = true;
         }
-    }#}
+    }
     
     // paginator remove condition
     $(document).on('click', '.btn-remove-condition', function(e) {
