@@ -1,0 +1,64 @@
+{% extends __template__[_self.getTemplateName()|e]%}
+
+{% block content_navTabs %}
+{{ parent() }}
+<li><a href="#page-translator-tab" data-toggle="tab">Translator </a></li>
+{% endblock %}
+
+{% block content_tabContent %}
+{{ parent() }}
+<div class="tab-pane" id="page-translator-tab">
+    
+    <input type="hidden" name="translator[id]" value="{{page.translator.id|default('')}}">
+    {#language#}
+    <div class="form-group">
+        <label for="name">Language(<small><i>ISO2</i></small>)</label>
+        <input type="text" name="translator[language]" class="form-control" id="translator-language" placeholder="language" value="{{page.translator.language|default('')}}" required pattern="[a-zA-Z]{2}">
+    </div>
+    
+    {#parent#}
+    <div class="form-group">
+        <label for="translator_">Source page</label>
+        <input type="hidden" id="_tmp_translator_list_source_page_id" value="{{page.translator.sourcePageId|default('')}}" disabled="disabled">
+        <select id="translator-source-page" class="form-control" name="translator[sourcePageId]">
+            
+        </select>
+    </div>
+    
+    {#state#}
+    <div class="form-group">
+        <label for="plugin_translator">State</label>
+        <select id="plugin_translator" class="form-control" name="translator[state]">
+          {% if page.translator.state|default(1) %}
+          <option value="1" selected>Active</option>
+          <option value="0">Inactive</option>
+          {% else %}
+          <option value="1">Active</option>
+          <option value="0" selected>Inactive</option>
+          {% endif %}
+        </select>
+    </div>
+    
+</div>
+{% endblock %}
+
+{% block javascript_documentReady %}
+    var pageParentElm = document.getElementById('page_parents');
+    var pageparents = pageParentElm.innerHTML;
+    
+    var listParentElm = document.getElementById('translator-source-page');
+    var listparents = listParentElm.innerHTML + pageparents;
+    
+    listParentElm.innerHTML = listparents;
+    
+    var selectedListParent = document.getElementById('_tmp_translator_list_source_page_id').value;
+    
+    // listTplElm.options[parseInt(selectedListParent.value)-1].selected = true;
+    
+    for (var i = 0; i < listParentElm.options.length; i++) {
+        if(listParentElm.options[i].value == selectedListParent){
+          listParentElm.options[i].selected = true;
+        }
+    }
+
+{% endblock %}

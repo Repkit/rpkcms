@@ -13,7 +13,7 @@
     <input type="hidden" name="paginator[id]" value="{{page.paginator.id|default('')}}">
     {#name#}
     <div class="form-group">
-        <label for="name">Name <small>will be used to generate sublists</small></label>
+        <label for="paginator-name">Name <small>will be used to generate sublists</small></label>
         <input type="text" name="paginator[name]" class="form-control" id="paginator-name" placeholder="name" value="{{page.paginator.name|default('')}}" required pattern="^[a-z0-9-]+$" {{page.paginator.state ?'':'disabled="disabled"'}}>
     </div>
     
@@ -27,7 +27,7 @@
     
     {#items number#}
     <div class="form-group">
-        <label for="name">Items number per list</label>
+        <label for="paginator-itemsNumber">Items number per list</label>
         <input type="text" name="paginator[itemsNumber]" class="form-control" id="paginator-itemsNumber" placeholder="Items number per list" value="{{page.paginator.itemsNumber|default('')}}" required {{page.paginator.state ?'':'disabled="disabled"'}}>
     </div>
     
