@@ -138,8 +138,6 @@ class Paginator
     
     private function cache_RenderPre($Params)
     {
-        // var_dump($Params['data']);exit(__FILE__.'::'.__LINE__);
-        
         // $paginator = $this->storage->fetch('page_paginator', $Params['data']['id'], 'pageId');
         $query = "  select page_paginator.*, page_templates.path as `page_templates.path` , page_templates.name as `page_templates.name`
                     , page_paginator_conditions.field, page_paginator_conditions.operation, page_paginator_conditions.value

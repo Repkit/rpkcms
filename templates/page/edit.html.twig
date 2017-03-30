@@ -276,7 +276,7 @@ function processForm() {
 	    $('#form').attr('action','{{ url('admin.page', {'action': 'edit'}) }}').attr('target','_self');
 	});
 	
-	$(function() {   
+	$(function() {
 	    
 	   // page meta
         var i=$('#dynamic-row').find('.input-group-addon').length;
@@ -325,8 +325,6 @@ function processForm() {
     	});
     	{% block javascript_documentReady %}{% endblock %}
     });
-
-
 </script>
 {% endblock %}
 
