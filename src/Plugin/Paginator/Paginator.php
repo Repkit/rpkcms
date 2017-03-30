@@ -77,7 +77,7 @@ class Paginator
     private function add_RenderPre($Params)
     {
         // change template
-        $Params['template'] = 'templates/plugin/paginator/page::add';
+        \Plugin\Utils::changeTemplate($Params, 'templates/plugin/paginator/page::add');
     }
     
     private function add_InsertPre($Params)
@@ -93,7 +93,7 @@ class Paginator
     private function edit_RenderPre($Params)
     {
         // change template
-        $Params['template'] = 'templates/plugin/paginator/page::edit';
+        \Plugin\Utils::changeTemplate($Params, 'templates/plugin/paginator/page::edit');
         
         // one template can have only one paginator either enabled or disabled
         $paginator = $this->storage->fetch('page_paginator', $Params['data']['page']['id'], 'pageId');
@@ -344,7 +344,7 @@ class Paginator
     private function templateAdd_RenderPre($Params)
     {
         // change template
-        $Params['template'] = 'templates/plugin/paginator/page/template::add';
+        \Plugin\Utils::changeTemplate($Params, 'templates/plugin/paginator/page/template::add');
     }
     
     private function templateAdd_InsertPre($Params)
@@ -360,7 +360,7 @@ class Paginator
     private function templateEdit_RenderPre($Params)
     {
         // change template
-        $Params['template'] = 'templates/plugin/paginator/page/template::edit';
+        \Plugin\Utils::changeTemplate($Params, 'templates/plugin/paginator/page/template::edit');
         
         // one template can have only one paginator either enabled or disabled
         $paginator = $this->storage->fetch('page_paginator', $Params['data']['page_template']['id'], 'templateId');

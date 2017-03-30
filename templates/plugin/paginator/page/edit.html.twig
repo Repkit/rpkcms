@@ -1,4 +1,5 @@
-{% extends '@page/edit.html.twig' %}
+{#{% extends '@page/edit.html.twig' %}#}
+{% extends __template__[_self.getTemplateName()|e]%}
 
 {% block content_navTabs %}
 {{ parent() }}
@@ -8,7 +9,7 @@
 {% block content_tabContent %}
 {{ parent() }}
 <div class="tab-pane" id="page-paginator-tab">
-            
+
     <input type="hidden" name="paginator[id]" value="{{page.paginator.id|default('')}}">
     {#name#}
     <div class="form-group">
