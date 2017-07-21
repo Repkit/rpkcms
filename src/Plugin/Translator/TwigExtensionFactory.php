@@ -1,6 +1,6 @@
 <?php
 
-namespace Page;
+namespace Plugin\Translator;
 
 use Interop\Container\ContainerInterface;
 use Page\Storage\StorageInterface;

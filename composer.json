@@ -1,6 +1,7 @@
 {
     "name": "zendframework/zend-expressive-skeleton",
     "type": "project",
+    "description": "some cms",
     "homepage": "https://github.com/zendframework/zend-expressive-skeleton",
     "license": "BSD-3-CLAUSE",
     "authors": [
@@ -13,6 +14,18 @@
         "branch-alias": {
             "dev-master": "1.0-dev",
             "dev-develop": "1.1-dev"
+        },
+        "merge-plugin": {
+            "include": [
+                "src/Plugin/*/composer.json"
+            ],
+            "recurse": true,
+            "replace": false,
+            "ignore-duplicates": false,
+            "merge-dev": true,
+            "merge-extra": true,
+            "merge-extra-deep": true,
+            "merge-scripts": true
         }
     },
     "require": {
@@ -27,13 +40,14 @@
         "zendframework/zend-expressive-twigrenderer": "^1.0",
         "zendframework/zend-paginator": "^2.5",
         "opauth/opauth": "*",
-        "rpk/plugin-manager": "^1.0"
+        "rpk/plugin-manager": "^1.0",
+        "wikimedia/composer-merge-plugin": "^1.4",
+        "mtymek/expressive-config-manager": "dev-master"
     },
     "require-dev": {
         "phpunit/phpunit": "^4.8",
         "squizlabs/php_codesniffer": "^2.3",
-        "filp/whoops": "^1.1",
-        "mtymek/expressive-config-manager": "dev-master"
+        "filp/whoops": "^1.1"
     },
     "autoload": {
         "psr-4": {
