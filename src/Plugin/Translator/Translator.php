@@ -93,6 +93,11 @@ class Translator
             $translator['authorId'] = $Params['data']['authorId'];            
         }
         
+        // if page is disabled then disable the translator also
+        if(0 == $Params['data']['state']){
+            $translator['state'] = 0;
+        }
+        
         // save translator
         $this->save($id, $translator);
         
